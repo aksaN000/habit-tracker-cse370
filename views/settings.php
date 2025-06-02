@@ -1021,11 +1021,14 @@ include '../views/partials/header.php';
                     } else {
                         document.body.classList.remove('enable-animations');
                     }
-                });
-            }
+                });            }
 </script>
 
 <?php
+// Include modals
+include __DIR__ . '/partials/add_habit_modal.php';
+include __DIR__ . '/partials/add_goal_modal.php';
+
 // Include footer
 include __DIR__ . '/partials/footer.php';
 ?>

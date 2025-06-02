@@ -552,8 +552,7 @@ include '../views/partials/header.php';
                     }
                 }
             }
-        });
-        <?php endif; ?>
+        });        <?php endif; ?>
     });
 </script>
 

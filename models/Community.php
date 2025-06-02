@@ -272,10 +272,9 @@ class Community {
         
         return $stmt->execute();
     }
-    
-    // Search for users
+      // Search for users
     public function searchUsers($search_term, $current_user_id) {
-        $query = "SELECT id, username, level, 
+        $query = "SELECT id, username, level, profile_picture,
                     (SELECT COUNT(*) FROM " . $this->friends_table . " 
                     WHERE user_id = :current_user_id AND friend_id = users.id) as is_friend
                   FROM users 
@@ -292,14 +291,14 @@ class Community {
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-    // Get user's profile
+      // Get user's profile
     public function getUserProfile($user_id) {
         // Fetch basic user profile data with minimal joins
         $query = "SELECT 
                   u.id, 
                   u.username, 
                   u.level, 
+                  u.profile_picture,
                   u.current_xp, 
                   u.created_at,
                   us.profile_visibility, 

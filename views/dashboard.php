@@ -43,13 +43,19 @@ $levelInfo = getLevelInfo($user->level, $GLOBALS['conn']);
 
 // Get next level info
 $nextLevelXP = getNextLevelXP($user->level, $GLOBALS['conn']);
+$isMaxLevel = ($nextLevelXP === false || $user->level >= 5);
 
 // Calculate XP progress percentage
-$xpProgressPercentage = calculateXPProgress($user->current_xp, $user->level, $GLOBALS['conn']);
-
-// Calculate XP for current level and needed for next level
-$xpForCurrentLevel = $user->current_xp - $levelInfo['xp_required'];
-$xpNeededForNextLevel = $nextLevelXP - $levelInfo['xp_required'];
+if ($isMaxLevel) {
+    $xpProgressPercentage = 100;
+    $xpForCurrentLevel = $user->current_xp - $levelInfo['xp_required'];
+    $xpNeededForNextLevel = 0;
+} else {
+    $xpProgressPercentage = calculateXPProgress($user->current_xp, $user->level, $GLOBALS['conn']);
+    // Calculate XP for current level and needed for next level
+    $xpForCurrentLevel = $user->current_xp - $levelInfo['xp_required'];
+    $xpNeededForNextLevel = $nextLevelXP - $levelInfo['xp_required'];
+}
 
 // Include header
 include '../views/partials/header.php';
@@ -132,26 +138,35 @@ include '../views/partials/header.php';
                                 echo "You don't have any habits scheduled for today.";
                             }
                             ?>
-                        </p>
-                        <div class="mt-4">
+                        </p>                        <div class="mt-4">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-white">Level <?php echo $user->level; ?></span>
-                                <span class="text-white">Level <?php echo $user->level + 1; ?></span>
+                                <?php if($isMaxLevel): ?>
+                                    <span class="text-white">Max Level Reached!</span>
+                                <?php else: ?>
+                                    <span class="text-white">Level <?php echo $user->level + 1; ?></span>
+                                <?php endif; ?>
                             </div>
-                            <div class="xp-progress">
-                                <div class="progress-bar" role="progressbar" style="width: <?php echo $xpProgressPercentage; ?>%;" aria-valuenow="<?php echo $xpProgressPercentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="xp-progress dashboard-progress">
+                                <div class="progress-bar progress-bar-animated <?php echo $isMaxLevel ? 'max-level-badge' : ''; ?>" role="progressbar" style="width: <?php echo $xpProgressPercentage; ?>%;" aria-valuenow="<?php echo $xpProgressPercentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <div class="text-white-50 mt-1">
-                                <small><?php echo $xpForCurrentLevel; ?> / <?php echo $xpNeededForNextLevel; ?> XP to next level</small>
+                                <?php if($isMaxLevel): ?>
+                                    <small>You've reached the maximum level! Total XP: <?php echo $user->current_xp; ?></small>
+                                <?php else: ?>
+                                    <small><?php echo $xpForCurrentLevel; ?> / <?php echo $xpNeededForNextLevel; ?> XP to next level</small>
+                                <?php endif; ?>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <div class="level-badge">
+                    </div>                    <div class="col-md-4 text-center">
+                        <div class="level-badge <?php echo $isMaxLevel ? 'max-level-badge' : ''; ?>">
                             <?php echo $user->level; ?>
                         </div>
                         <h4 class="text-white mt-2"><?php echo $levelInfo['title']; ?></h4>
                         <p class="text-white-50"><?php echo $levelInfo['badge_name']; ?></p>
+                        <?php if($isMaxLevel): ?>
+                            <p class="text-warning">🏆 Maximum Level Achieved!</p>
+                        <?php endif; ?>
                         <p class="text-white">Total XP: <?php echo $user->current_xp; ?></p>
                     </div>
                 </div>
@@ -618,11 +633,14 @@ include '../views/partials/header.php';
                     customOptions.style.display = 'block';
                 }
             });
-        }
-    });
+        }    });
 </script>
 
 <?php
+// Include modals
+include __DIR__ . '/partials/add_habit_modal.php';
+include __DIR__ . '/partials/add_goal_modal.php';
+
 // Include footer
 include '../views/partials/footer.php';
 ?>

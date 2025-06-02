@@ -766,8 +766,7 @@ include '../views/partials/header.php';
                         </div>
                     </div>
                 </div>
-            <?php endif; ?>
-        </main>
+            <?php endif; ?>        </main>
     </div>
 </div>
 

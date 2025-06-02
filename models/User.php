@@ -3,8 +3,7 @@
 class User {
     private $conn;
     private $table = 'users';
-    
-    // User properties
+      // User properties
     public $id;
     public $username;
     public $email;
@@ -12,6 +11,7 @@ class User {
     public $current_xp;
     public $level;
     public $created_at;
+    public $profile_picture;
     
     public function __construct($db) {
         $this->conn = $db;
@@ -63,9 +63,8 @@ class User {
     public function login() {
         // Sanitize email
         $this->email = htmlspecialchars(strip_tags($this->email));
-        
-        // Query to read user data
-        $query = "SELECT id, username, email, password, current_xp, level 
+          // Query to read user data
+        $query = "SELECT id, username, email, password, current_xp, level, profile_picture 
                   FROM " . $this->table . " 
                   WHERE email = :email 
                   LIMIT 0,1";
@@ -86,13 +85,13 @@ class User {
         if($num > 0) {
             // Get record details
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            // Assign values to object properties
+              // Assign values to object properties
             $this->id = $row['id'];
             $this->username = $row['username'];
             $this->email = $row['email'];
             $this->current_xp = $row['current_xp'];
             $this->level = $row['level'];
+            $this->profile_picture = $row['profile_picture'];
             
             // Verify password
             if(password_verify($this->password, $row['password'])) {
@@ -152,11 +151,10 @@ class User {
         
         return false;
     }
-    
-    // Get user by ID
+      // Get user by ID
     public function getUserById($id) {
         // Query
-        $query = "SELECT id, username, email, password, current_xp, level, created_at 
+        $query = "SELECT id, username, email, password, current_xp, level, created_at, profile_picture 
                 FROM " . $this->table . " 
                 WHERE id = :id 
                 LIMIT 0,1";
@@ -169,11 +167,9 @@ class User {
         
         // Execute query
         $stmt->execute();
-        
-        // Get row
+          // Get row
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if($row) {
+          if($row) {
             // Set properties
             $this->id = $row['id'];
             $this->username = $row['username'];
@@ -182,6 +178,8 @@ class User {
             $this->current_xp = $row['current_xp'];
             $this->level = $row['level'];
             $this->created_at = $row['created_at'];
+            $this->profile_picture = $row['profile_picture']; // Added missing profile picture assignment
+            $this->profile_picture = $row['profile_picture'];
             
             return true;
         }

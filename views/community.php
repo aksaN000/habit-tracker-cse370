@@ -157,9 +157,14 @@ include '../views/partials/header.php';
                                     <div class="card-header bg-primary text-white">
                                         <h5 class="mb-0"><?php echo htmlspecialchars($friend['username']); ?></h5>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="text-center mb-3">
-                                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($friend['username']); ?>&background=random&size=100" alt="<?php echo htmlspecialchars($friend['username']); ?>" class="rounded-circle">
+                                    <div class="card-body">                                        <div class="text-center mb-3">
+                                            <?php if(!empty($friend['profile_picture'])): ?>
+                                                <img src="../assets/uploads/profile_pictures/<?php echo $friend['profile_picture']; ?>" alt="<?php echo htmlspecialchars($friend['username']); ?>" class="profile-pic-large">
+                                            <?php else: ?>
+                                                <div class="profile-pic-large profile-pic-default">
+                                                    <?php echo strtoupper(substr($friend['username'], 0, 1)); ?>
+                                                </div>
+                                            <?php endif; ?>
                                             <div class="mt-2">
                                                 <span class="badge bg-primary">Level <?php echo $friend['level']; ?></span>
                                             </div>
@@ -225,7 +230,13 @@ include '../views/partials/header.php';
                                             <div class="list-group-item">
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <div class="d-flex align-items-center">
-                                                        <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($request['sender_name']); ?>&background=random&size=50" alt="<?php echo htmlspecialchars($request['sender_name']); ?>" class="rounded-circle me-3" width="50">
+                                                        <?php if(!empty($request['profile_picture'])): ?>
+                                                            <img src="../assets/uploads/profile_pictures/<?php echo $request['profile_picture']; ?>" alt="<?php echo htmlspecialchars($request['sender_name']); ?>" class="profile-pic me-3">
+                                                        <?php else: ?>
+                                                            <div class="profile-pic profile-pic-default me-3">
+                                                                <?php echo strtoupper(substr($request['sender_name'], 0, 1)); ?>
+                                                            </div>
+                                                        <?php endif; ?>
                                                         <div>
                                                             <h6 class="mb-0"><?php echo htmlspecialchars($request['sender_name']); ?></h6>
                                                             <small class="text-muted"><?php echo timeAgo($request['created_at']); ?></small>
@@ -275,7 +286,13 @@ include '../views/partials/header.php';
                                             <div class="list-group-item">
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <div class="d-flex align-items-center">
-                                                        <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($request['recipient_name']); ?>&background=random&size=50" alt="<?php echo htmlspecialchars($request['recipient_name']); ?>" class="rounded-circle me-3" width="50">
+                                                        <?php if(!empty($request['profile_picture'])): ?>
+                                                            <img src="../assets/uploads/profile_pictures/<?php echo $request['profile_picture']; ?>" alt="<?php echo htmlspecialchars($request['recipient_name']); ?>" class="profile-pic me-3">
+                                                        <?php else: ?>
+                                                            <div class="profile-pic profile-pic-default me-3">
+                                                                <?php echo strtoupper(substr($request['recipient_name'], 0, 1)); ?>
+                                                            </div>
+                                                        <?php endif; ?>
                                                         <div>
                                                             <h6 class="mb-0"><?php echo htmlspecialchars($request['recipient_name']); ?></h6>
                                                             <small class="text-muted">Sent <?php echo timeAgo($request['created_at']); ?></small>
@@ -324,9 +341,14 @@ include '../views/partials/header.php';
                                     <div class="list-group">
                                         <?php foreach ($search_results as $result): ?>
                                             <div class="list-group-item">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($result['username']); ?>&background=random&size=50" alt="<?php echo htmlspecialchars($result['username']); ?>" class="rounded-circle me-3" width="50">
+                                                <div class="d-flex justify-content-between align-items-center">                                                    <div class="d-flex align-items-center">
+                                                        <?php if(!empty($result['profile_picture'])): ?>
+                                                            <img src="../assets/uploads/profile_pictures/<?php echo $result['profile_picture']; ?>" alt="<?php echo htmlspecialchars($result['username']); ?>" class="profile-pic me-3">
+                                                        <?php else: ?>
+                                                            <div class="profile-pic profile-pic-default me-3">
+                                                                <?php echo strtoupper(substr($result['username'], 0, 1)); ?>
+                                                            </div>
+                                                        <?php endif; ?>
                                                         <div>
                                                             <h6 class="mb-0"><?php echo htmlspecialchars($result['username']); ?></h6>
                                                             <span class="badge bg-primary">Level <?php echo $result['level']; ?></span>
@@ -374,9 +396,14 @@ include '../views/partials/header.php';
                         <div class="card">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="mb-0"><?php echo htmlspecialchars($profile['username']); ?></h5>
-                            </div>
-                            <div class="card-body text-center">
-                                <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($profile['username']); ?>&background=random&size=150" alt="<?php echo htmlspecialchars($profile['username']); ?>" class="rounded-circle mb-3" width="150">
+                            </div>                            <div class="card-body text-center">
+                                <?php if(!empty($profile['profile_picture'])): ?>
+                                    <img src="../assets/uploads/profile_pictures/<?php echo $profile['profile_picture']; ?>" alt="<?php echo htmlspecialchars($profile['username']); ?>" class="profile-pic-large mb-3">
+                                <?php else: ?>
+                                    <div class="profile-pic-large profile-pic-default mb-3">
+                                        <?php echo strtoupper(substr($profile['username'], 0, 1)); ?>
+                                    </div>
+                                <?php endif; ?>
                                 
                                 <h5>Level <?php echo $profile['level']; ?></h5>
                                 <div class="progress mb-3">
@@ -773,10 +800,11 @@ include '../views/partials/header.php';
                                         </div>
                                     <?php endif; ?>
                                 </main>
-                            </div>
-                        </div>
-
-                        <?php
+                            </div>                        </div>                        <?php
+                        // Include modals
+                        include __DIR__ . '/partials/add_habit_modal.php';
+                        include __DIR__ . '/partials/add_goal_modal.php';
+                        
                         // Include footer
                         include __DIR__ . '/partials/footer.php';
                         ?>

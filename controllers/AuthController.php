@@ -221,8 +221,7 @@ class AuthController {
         if(empty($password)) {
             $errors[] = 'Password is required';
         }
-        
-        // If no errors, try to login
+          // If no errors, try to login
         if(empty($errors)) {
             // Set user properties
             $this->user->email = $email;
@@ -235,6 +234,7 @@ class AuthController {
                 $_SESSION['username'] = $this->user->username;
                 $_SESSION['email'] = $this->user->email;
                 $_SESSION['level'] = $this->user->level;
+                $_SESSION['profile_picture'] = $this->user->profile_picture;
                 $_SESSION['logged_in'] = true;
                 
                 // Add these lines:
@@ -280,5 +280,16 @@ class AuthController {
     public function getUnreadNotifications($user_id, $limit = 100) {
         $notificationController = new NotificationController();
         return $notificationController->getUnreadNotifications($user_id, $limit);
+    }
+    
+    // Edit user profile (wrapper for updateProfile that handles form data)
+    public function editProfile($user_id, $form_data) {
+        $username = $form_data['username'] ?? '';
+        $email = $form_data['email'] ?? '';
+        $current_password = $form_data['current_password'] ?? '';
+        $new_password = $form_data['new_password'] ?? '';
+        $confirm_password = $form_data['confirm_password'] ?? '';
+        
+        return $this->updateProfile($user_id, $username, $email, $current_password, $new_password, $confirm_password);
     }
 }

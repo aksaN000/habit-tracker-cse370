@@ -60,7 +60,7 @@ if($user) {
 ?>
 
 <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block <?php echo $sidebar_bg_class; ?> sidebar collapse">
-    <div class="position-sticky pt-3">
+    <div class="sidebar-sticky pt-3">
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? '../index.php' : 'index.php'; ?>">
@@ -123,8 +123,7 @@ if($user) {
                     <i class="bi bi-graph-up"></i>
                     Analytics
                 </a>
-            </li>
-        </ul>
+            </li>        </ul>
         
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 <?php echo $sidebar_text_class; ?> text-muted">
             <span>Quick Actions</span>

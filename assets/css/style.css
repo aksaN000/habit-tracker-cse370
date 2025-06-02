@@ -26,6 +26,26 @@ body {
     padding-top: .5rem;
     overflow-x: hidden;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 123, 255, 0.3) transparent;
+}
+
+/* Custom scrollbar for webkit browsers */
+.sidebar-sticky::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-sticky::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-sticky::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 123, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar-sticky::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 123, 255, 0.5);
 }
 
 .sidebar .nav-link {
@@ -299,37 +319,143 @@ body {
     animation: pulse 1s infinite;
 }
 
-/* Custom utilities */
-.cursor-pointer {
-    cursor: pointer;
+/* Enhanced Progress Bar Animations */
+.progress-bar-animated {
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
 }
 
-.text-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+.level-progress .progress-bar {
+    transition: width 1.5s ease-in-out;
+    background: linear-gradient(90deg, var(--success-color), var(--info-color));
 }
 
-/* Responsive adjustments */
-@media (max-width: 767.98px) {
-    .sidebar {
-        position: static;
-        height: auto;
-        padding-top: 0;
+.dashboard-progress .progress-bar {
+    transition: width 1.5s ease-in-out;
+    background: linear-gradient(90deg, var(--success-color), var(--info-color));
+    animation: pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.8;
     }
-    
-    .sidebar-sticky {
-        height: auto;
+    100% {
+        opacity: 1;
     }
-    
-    main {
-        margin-left: 0 !important;
+}
+
+/* Profile Picture Styles */
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* Prevent shrinking */
+    max-width: 40px; /* Force max width */
+    max-height: 40px; /* Force max height */
+}
+
+.profile-pic-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    flex-shrink: 0; /* Prevent shrinking */
+    max-width: 120px; /* Force max width */
+    max-height: 120px; /* Force max height */
+}
+
+.profile-pic-default {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Additional profile picture sizing constraints */
+.profile-avatar {
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
+    border-radius: 50%;
+    border: 5px solid white;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* Navbar profile picture specific sizing */
+.navbar .profile-pic {
+    width: 30px !important;
+    height: 30px !important;
+    max-width: 30px !important;
+    max-height: 30px !important;
+}
+
+/* Community profile picture specific sizing */
+.profile-pic-community {
+    width: 50px;
+    height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
+.profile-pic-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-pic-container:hover .profile-pic-overlay {
+    opacity: 1;
+}
+
+.profile-pic-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    font-size: 0.8rem;
+}
+
+/* Max Level Achievement */
+.max-level-badge {
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #fff;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
     }
-    
-    .profile-avatar {
-        width: 100px;
-        height: 100px;
+    to {
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
     }
 }
 
@@ -411,10 +537,7 @@ body {
 
 /* Color Schemes */
 
-/* Default (Blue) Color Scheme */
-.color-default {
-    /* Uses the default --primary-color value */
-}
+/* Default (Blue) Color Scheme - uses the default --primary-color value */
 
 /* Teal Color Scheme */
 .color-teal {
@@ -738,4 +861,652 @@ body {
 
 .navbar-dark {
     background-color: var(--navbar-bg) !important;
+}
+
+/* ===== MOBILE RESPONSIVE STYLES ===== */
+
+/* Extra Small devices (phones, 576px and down) */
+@media (max-width: 575.98px) {
+    /* Container adjustments */
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    /* Navbar mobile */
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    .navbar .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Sidebar mobile - hidden by default */
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1050;
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    /* Main content full width on mobile */
+    main {
+        width: 100%;
+        margin-left: 0 !important;
+        padding: 0.5rem;
+    }
+    
+    /* Card spacing */
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    /* Header adjustments */
+    .profile-header {
+        padding: 2rem 0;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    /* Button groups mobile */
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0.375rem !important;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Tab navigation mobile */
+    .nav-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .nav-tabs .nav-link {
+        white-space: nowrap;
+        border: none;
+        border-bottom: 2px solid transparent;
+    }
+    
+    .nav-tabs .nav-link.active {
+        border-bottom-color: var(--primary-color);
+    }
+    
+    /* Form adjustments */
+    .input-group {
+        flex-direction: column;
+    }
+    
+    .input-group .form-control,
+    .input-group .input-group-text {
+        border-radius: 0.375rem !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Table responsive */
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+    
+    /* Modal mobile */
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: none;
+        width: calc(100% - 1rem);
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    /* Dashboard grid mobile */
+    .row > [class*="col-"] {
+        margin-bottom: 1rem;
+    }
+    
+    /* Statistics cards mobile */
+    .welcome-section h1 {
+        font-size: 1.75rem;
+    }
+    
+    .stats-card .display-4 {
+        font-size: 2rem;
+    }
+    
+    /* Progress bars mobile */
+    .progress {
+        height: 1rem;
+    }
+    
+    /* Chart containers mobile */
+    .analytics-chart-card .card-body,
+    .mood-chart-card .card-body {
+        height: 250px;
+    }
+    
+    /* Notification dropdown mobile */
+    .notification-dropdown {
+        min-width: 280px;
+        max-width: 90vw;
+    }
+      /* Profile picture mobile */
+    .profile-pic-large {
+        width: 80px !important;
+        height: 80px !important;
+        max-width: 80px !important;
+        max-height: 80px !important;
+    }
+    
+    .profile-pic {
+        width: 30px !important;
+        height: 30px !important;
+        max-width: 30px !important;
+        max-height: 30px !important;
+    }
+    
+    .profile-avatar {
+        width: 100px !important;
+        height: 100px !important;
+        max-width: 100px !important;
+        max-height: 100px !important;
+    }
+    
+    /* Footer mobile */
+    footer .row > div {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    main {
+        padding: 1rem;
+    }
+    
+    .modal-dialog {
+        max-width: 500px;
+    }
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .profile-pic-large {
+        width: 100px !important;
+        height: 100px !important;
+        max-width: 100px !important;
+        max-height: 100px !important;
+    }
+    
+    .analytics-chart-card .card-body,
+    .mood-chart-card .card-body {
+        height: 280px;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .sidebar {
+        width: 280px;
+    }
+    
+    main {
+        margin-left: 280px;
+        padding: 1.5rem;
+    }
+    
+    .analytics-chart-card .card-body,
+    .mood-chart-card .card-body {
+        height: 300px;
+    }
+    
+    /* Tab content adjustments for tablets */
+    .nav-tabs .nav-link {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .sidebar {
+        width: 280px;
+    }
+    
+    main {
+        margin-left: 280px;
+        padding: 2rem;
+    }
+    
+    .analytics-chart-card .card-body,
+    .mood-chart-card .card-body {
+        height: 350px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    .btn {
+        min-height: 44px;
+        padding: 0.5rem 1rem;
+    }
+    
+    .nav-link {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control,
+    .form-select {
+        min-height: 44px;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .card:hover,
+    .habit-card:hover,
+    .achievement-card:hover {
+        transform: none;
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+    }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .profile-pic,
+    .profile-pic-large {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Landscape orientation mobile */
+@media (max-width: 767.98px) and (orientation: landscape) {
+    .profile-header {
+        padding: 1.5rem 0;
+    }
+    
+    .modal-dialog {
+        margin: 0.25rem;
+    }
+    
+    .analytics-chart-card .card-body,
+    .mood-chart-card .card-body {
+        height: 200px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .sidebar,
+    .navbar,
+    .btn,
+    .pagination {
+        display: none !important;
+    }
+    
+    main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+    
+    .page-break {
+        page-break-before: always;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .enable-animations * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .progress-bar,
+    .pulse-animation {
+        animation: none !important;
+    }
+}
+
+/* Dark mode color scheme preference */
+@media (prefers-color-scheme: dark) {
+    .color-system {
+        --body-bg: #1a1a1a;
+        --body-color: #ffffff;
+        --card-bg: #2d2d30;
+        --card-border: rgba(255,255,255,0.125);
+    }
+}
+
+/* Light mode color scheme preference */
+@media (prefers-color-scheme: light) {
+    .color-system {
+        --body-bg: #ffffff;
+        --body-color: #212529;
+        --card-bg: #ffffff;
+        --card-border: rgba(0,0,0,0.125);
+    }
+}
+
+/* ===== MOBILE RESPONSIVE STYLES ===== */
+
+/* Tablet and Mobile Styles */
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        height: 100vh;
+        z-index: 1050;
+        transition: left 0.3s ease;
+        width: 280px;
+        background: var(--sidebar-bg, #f8f9fa);
+        overflow-y: auto;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar.show {
+        left: 0;
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1040;
+    }
+    
+    .sidebar-overlay.show {
+        display: block;
+    }
+    
+    main.col-md-9 {
+        width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 15px;
+        padding-right: 15px;
+    }    
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    /* Mobile sidebar toggle positioning */
+    .mobile-sidebar-toggle {
+        order: -1;
+        margin-right: 0.5rem !important;
+    }
+    
+    .navbar .container-fluid {
+        display: flex;
+        align-items: center;
+    }
+    
+    .btn-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-toolbar .btn {
+        width: 100%;
+    }
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    /* Container and Layout */
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    main.col-md-9 {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    /* Typography */
+    .h2, h2 {
+        font-size: 1.5rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    /* Cards and Content */
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .row > .col-md-3,
+    .row > .col-md-4,
+    .row > .col-md-6,
+    .row > .col-lg-4,
+    .row > .col-lg-3 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Navigation */
+    .navbar {
+        padding: 0.5rem 1rem;
+    }
+    
+    .navbar-nav .dropdown-menu {
+        position: absolute;
+        right: 0;
+        left: auto;
+        min-width: 200px;
+    }
+    
+    /* Buttons */
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0.375rem !important;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Tables */
+    .table-responsive {
+        border: none;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Forms */
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-row .col {
+        margin-bottom: 1rem;
+    }
+    
+    /* Progress bars */
+    .progress {
+        height: 1.25rem;
+    }
+    
+    .progress-bar {
+        font-size: 0.875rem;
+    }
+    
+    /* Stats cards */
+    .stats-card .display-4 {
+        font-size: 1.75rem;
+    }
+    
+    /* Charts */
+    .analytics-chart-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Hide sidebar toggle on mobile */
+    .d-none.d-lg-block {
+        display: none !important;
+    }
+}
+
+/* Small Mobile Styles */
+@media (max-width: 576px) {
+    /* Even more compact layout */
+    .container-fluid {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+    
+    main.col-md-9 {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .h2, h2 {
+        font-size: 1.25rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .navbar {
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .modal-dialog {
+        margin: 0.25rem;
+        max-width: calc(100% - 0.5rem);
+    }
+    
+    /* Stack columns on very small screens */
+    .row [class*="col-"] {
+        margin-bottom: 1rem;
+    }
+    
+    /* Compact stats display */
+    .stats-card .display-4 {
+        font-size: 1.5rem;
+    }
+    
+    .stats-card .card-title {
+        font-size: 1rem;
+    }
+    
+    /* Adjust habit and goal cards */
+    .habit-card,
+    .goal-card,
+    .challenge-card {
+        margin-bottom: 1rem;
+    }
+    
+    /* Compact navigation */
+    .navbar-brand {
+        font-size: 1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    .sidebar {
+        width: 250px;
+    }
+    
+    .modal-dialog {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Dark mode mobile adjustments */
+@media (max-width: 768px) {
+    [data-bs-theme="dark"] .sidebar {
+        background: var(--bs-dark);
+        border-right: 1px solid var(--bs-border-color);
+    }
+    
+    [data-bs-theme="dark"] .navbar {
+        background: var(--bs-dark) !important;
+    }
+    
+    [data-bs-theme="dark"] .card {
+        background: var(--bs-dark);
+        border-color: var(--bs-border-color);
+    }
+}
+
+/* Print styles */
+@media print {
+    .sidebar,
+    .navbar,
+    .btn,
+    .dropdown {
+        display: none !important;
+    }
+    
+    main.col-md-9 {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .card {
+        border: 1px solid #000;
+        break-inside: avoid;
+    }
 }

@@ -59,13 +59,19 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     
-    // Update profile logic
-    $result = $authController->updateProfile($user->id, $username, $email, $current_password, $new_password, $confirm_password);
+    // Create data array including all form data and file upload
+    $postData = $_POST;
     
+    // Update profile logic with proper method call
+    $result = $authController->editProfile($user->id, $postData);    
     $update_success = $result['success'];
     $update_message = $result['message'];
     
     if($update_success) {
+        // Update session if profile picture was uploaded
+        if(isset($result['profile_picture']) && $result['profile_picture']) {
+            $_SESSION['profile_picture'] = $result['profile_picture'];
+        }
         // Refresh user data
         $user = $authController->getLoggedInUser();
     }
@@ -365,7 +371,7 @@ include '../views/partials/header.php';
                                         alt="Profile Avatar" 
                                         class="profile-avatar mb-3" 
                                         id="profile-preview"
-                                        style="width: 150px; height: 150px; border-radius: 50%; border: 5px solid white; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
+                                        style="width: 150px; height: 150px; max-width: 150px; max-height: 150px; border-radius: 50%; border: 5px solid white; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); object-fit: cover;">
                                     
                                     <div class="mb-3">
                                         <label for="profile_picture" class="form-label">Upload Profile Picture</label>

@@ -221,11 +221,18 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                                 <li><a class="dropdown-item text-center" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'notifications.php' : 'views/notifications.php'; ?>">See all notifications</a></li>
                             </ul>
                         </div>
-                        
-                        <!-- User Dropdown -->
+                          <!-- User Dropdown -->
                         <div class="dropdown">
-                            <a class="btn btn-outline-light dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-person-circle"></i> <?php echo $_SESSION['username']; ?>
+                            <a class="btn btn-outline-light dropdown-toggle d-flex align-items-center" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <?php if(isset($_SESSION['profile_picture']) && !empty($_SESSION['profile_picture'])): ?>
+                                    <img src="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? '../assets/uploads/profile_pictures/' . $_SESSION['profile_picture'] : 'assets/uploads/profile_pictures/' . $_SESSION['profile_picture']; ?>" 
+                                         alt="Profile" class="profile-pic me-2">
+                                <?php else: ?>
+                                    <div class="profile-pic profile-pic-default me-2">
+                                        <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php echo $_SESSION['username']; ?>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'profile.php' : 'views/profile.php'; ?>"><i class="bi bi-person"></i> Profile</a></li>
@@ -245,3 +252,15 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
             </div>
         </div>
     </nav>
+
+    <!-- Always ensure profile_picture is set in session if user is logged in -->
+    <?php
+    if(isset($_SESSION['user_id']) && (!isset($_SESSION['profile_picture']) || empty($_SESSION['profile_picture']))) {
+        require_once __DIR__ . '/../../config/database.php';
+        require_once __DIR__ . '/../../models/User.php';
+        $userModel = new User($conn);
+        if($userModel->getUserById($_SESSION['user_id'])) {
+            $_SESSION['profile_picture'] = $userModel->profile_picture;
+        }
+    }
+    ?>

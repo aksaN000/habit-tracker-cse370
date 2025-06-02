@@ -125,10 +125,14 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                         <a class="nav-link" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'goals.php' : 'views/goals.php'; ?>">
                             <i class="bi bi-trophy"></i> Goals
                         </a>
-                    </li>
-                    <li class="nav-item">
+                    </li>                    <li class="nav-item">
                         <a class="nav-link" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'challenges.php' : 'views/challenges.php'; ?>">
                             <i class="bi bi-people"></i> Challenges
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'community.php' : 'views/community.php'; ?>">
+                            <i class="bi bi-people-fill"></i> Community
                         </a>
                     </li>
                     <li class="nav-item">
@@ -222,14 +226,17 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                             </ul>
                         </div>
                           <!-- User Dropdown -->
-                        <div class="dropdown">
-                            <a class="btn btn-outline-light dropdown-toggle d-flex align-items-center" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="dropdown">                            <a class="btn btn-outline-light dropdown-toggle d-flex align-items-center" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <?php if(isset($_SESSION['profile_picture']) && !empty($_SESSION['profile_picture'])): ?>
                                     <img src="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? '../assets/uploads/profile_pictures/' . $_SESSION['profile_picture'] : 'assets/uploads/profile_pictures/' . $_SESSION['profile_picture']; ?>" 
                                          alt="Profile" class="profile-pic me-2">
                                 <?php else: ?>
-                                    <div class="profile-pic profile-pic-default me-2">
-                                        <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
+                                    <?php 
+                                    $gradientClass = getProfileGradientClass($_SESSION['username']); 
+                                    $initials = getProfileInitials($_SESSION['username']);
+                                    ?>
+                                    <div class="profile-pic profile-pic-default <?php echo $gradientClass; ?> me-2" title="<?php echo htmlspecialchars($_SESSION['username']); ?>'s profile">
+                                        <?php echo htmlspecialchars($initials); ?>
                                     </div>
                                 <?php endif; ?>
                                 <?php echo $_SESSION['username']; ?>

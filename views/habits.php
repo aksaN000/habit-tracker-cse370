@@ -673,7 +673,8 @@ include '../views/partials/header.php';
 </script>
 
 <?php
-// Include goal modal (habit modal likely already exists above)
+// Include modals
+include __DIR__ . '/partials/add_habit_modal.php';
 include __DIR__ . '/partials/add_goal_modal.php';
 
 // Include footer

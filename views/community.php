@@ -161,8 +161,12 @@ include '../views/partials/header.php';
                                             <?php if(!empty($friend['profile_picture'])): ?>
                                                 <img src="../assets/uploads/profile_pictures/<?php echo $friend['profile_picture']; ?>" alt="<?php echo htmlspecialchars($friend['username']); ?>" class="profile-pic-large">
                                             <?php else: ?>
-                                                <div class="profile-pic-large profile-pic-default">
-                                                    <?php echo strtoupper(substr($friend['username'], 0, 1)); ?>
+                                                <?php 
+                                                $gradientClass = getProfileGradientClass($friend['username']); 
+                                                $initials = getProfileInitials($friend['username']);
+                                                ?>
+                                                <div class="profile-pic-large profile-pic-default <?php echo $gradientClass; ?>" title="<?php echo htmlspecialchars($friend['username']); ?>'s profile">
+                                                    <?php echo htmlspecialchars($initials); ?>
                                                 </div>
                                             <?php endif; ?>
                                             <div class="mt-2">
@@ -229,12 +233,15 @@ include '../views/partials/header.php';
                                         <?php foreach ($friend_requests['incoming'] as $request): ?>
                                             <div class="list-group-item">
                                                 <div class="d-flex justify-content-between align-items-center">
-                                                    <div class="d-flex align-items-center">
-                                                        <?php if(!empty($request['profile_picture'])): ?>
+                                                    <div class="d-flex align-items-center">                                                        <?php if(!empty($request['profile_picture'])): ?>
                                                             <img src="../assets/uploads/profile_pictures/<?php echo $request['profile_picture']; ?>" alt="<?php echo htmlspecialchars($request['sender_name']); ?>" class="profile-pic me-3">
                                                         <?php else: ?>
-                                                            <div class="profile-pic profile-pic-default me-3">
-                                                                <?php echo strtoupper(substr($request['sender_name'], 0, 1)); ?>
+                                                            <?php 
+                                                            $gradientClass = getProfileGradientClass($request['sender_name']); 
+                                                            $initials = getProfileInitials($request['sender_name']);
+                                                            ?>
+                                                            <div class="profile-pic profile-pic-default <?php echo $gradientClass; ?> me-3" title="<?php echo htmlspecialchars($request['sender_name']); ?>'s profile">
+                                                                <?php echo htmlspecialchars($initials); ?>
                                                             </div>
                                                         <?php endif; ?>
                                                         <div>
@@ -396,12 +403,15 @@ include '../views/partials/header.php';
                         <div class="card">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="mb-0"><?php echo htmlspecialchars($profile['username']); ?></h5>
-                            </div>                            <div class="card-body text-center">
-                                <?php if(!empty($profile['profile_picture'])): ?>
+                            </div>                            <div class="card-body text-center">                                <?php if(!empty($profile['profile_picture'])): ?>
                                     <img src="../assets/uploads/profile_pictures/<?php echo $profile['profile_picture']; ?>" alt="<?php echo htmlspecialchars($profile['username']); ?>" class="profile-pic-large mb-3">
                                 <?php else: ?>
-                                    <div class="profile-pic-large profile-pic-default mb-3">
-                                        <?php echo strtoupper(substr($profile['username'], 0, 1)); ?>
+                                    <?php 
+                                    $gradientClass = getProfileGradientClass($profile['username']); 
+                                    $initials = getProfileInitials($profile['username']);
+                                    ?>
+                                    <div class="profile-pic-large profile-pic-default <?php echo $gradientClass; ?> mb-3" title="<?php echo htmlspecialchars($profile['username']); ?>'s profile">
+                                        <?php echo htmlspecialchars($initials); ?>
                                     </div>
                                 <?php endif; ?>
                                 

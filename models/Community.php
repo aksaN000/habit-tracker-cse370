@@ -198,10 +198,9 @@ class Community {
         $stmt->bindParam(':request_id', $request_id);
         return $stmt->execute();
     }
-    
-    // Get incoming friend requests
+      // Get incoming friend requests
     public function getIncomingFriendRequests($user_id) {
-        $query = "SELECT fr.*, u.username as sender_name 
+        $query = "SELECT fr.*, u.username as sender_name, u.profile_picture 
                   FROM " . $this->friend_requests_table . " fr
                   JOIN users u ON fr.sender_id = u.id
                   WHERE fr.recipient_id = :user_id
@@ -213,10 +212,9 @@ class Community {
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-    // Get outgoing friend requests
+      // Get outgoing friend requests
     public function getOutgoingFriendRequests($user_id) {
-        $query = "SELECT fr.*, u.username as recipient_name 
+        $query = "SELECT fr.*, u.username as recipient_name, u.profile_picture 
                   FROM " . $this->friend_requests_table . " fr
                   JOIN users u ON fr.recipient_id = u.id
                   WHERE fr.sender_id = :user_id
@@ -228,10 +226,9 @@ class Community {
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
-    // Get user's friends
+      // Get user's friends
     public function getFriends($user_id) {
-        $query = "SELECT f.*, u.username, u.level, u.current_xp, 
+        $query = "SELECT f.*, u.username, u.level, u.current_xp, u.profile_picture,
                          (SELECT COUNT(*) FROM habits WHERE user_id = u.id) as total_habits,
                          (SELECT COUNT(*) FROM goals WHERE user_id = u.id) as total_goals
                   FROM " . $this->friends_table . " f

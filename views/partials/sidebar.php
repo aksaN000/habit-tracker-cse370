@@ -44,17 +44,18 @@ if($user) {
     // Get current and next level information
     $level_info = getLevelInfo($current_level, $GLOBALS['conn']);
     $next_level_xp = getNextLevelXP($current_level, $GLOBALS['conn']);
-    
-    // Calculate XP progress percentage
+      // Calculate XP progress percentage
     if($next_level_xp) {
         $current_level_xp = $level_info['xp_required'];
         $xp_for_current_level = $current_xp - $current_level_xp;
         $xp_needed_for_next_level = $next_level_xp - $current_level_xp;
         $xp_progress_percentage = min(100, max(0, ($xp_for_current_level / $xp_needed_for_next_level) * 100));
+        $is_max_level = false;
     } else {
         $xp_progress_percentage = 100; // Max level
-        $xp_for_current_level = $current_xp;
-        $xp_needed_for_next_level = $current_xp;
+        $xp_for_current_level = $current_xp - $level_info['xp_required'];
+        $xp_needed_for_next_level = $xp_for_current_level; // For display purposes
+        $is_max_level = true;
     }
 }
 ?>
@@ -158,16 +159,22 @@ if($user) {
         <?php if($user): ?>
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 <?php echo $sidebar_text_class; ?> text-muted">
                 <span>Your Progress</span>
-            </h6>
-            <div class="px-3 py-2">
+            </h6>            <div class="px-3 py-2">
                 <div class="mb-2">
                     <small class="<?php echo $sidebar_text_class; ?> text-muted">Level <?php echo $current_level; ?></small>
                     <div class="progress" style="height: 5px;">
                         <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $xp_progress_percentage; ?>%" aria-valuenow="<?php echo $xp_progress_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                </div>
-                <small class="<?php echo $sidebar_text_class; ?> text-muted">
-                    <?php echo $xp_for_current_level; ?> / <?php echo $xp_needed_for_next_level; ?> XP to Level <?php echo $current_level + 1; ?>
+                </div>                <small class="<?php echo $sidebar_text_class; ?> text-muted">
+                    <?php if($is_max_level): ?>
+                        Max Level Reached! 🏆
+                    <?php else: ?>
+                        <?php 
+                        $next_level_xp = getNextLevelXP($current_level, $GLOBALS['conn']);
+                        $xpNeededToNext = $next_level_xp - $current_xp;
+                        ?>
+                        <?php echo $current_xp; ?> / <?php echo $next_level_xp; ?> Total XP (<?php echo $xpNeededToNext; ?> XP needed for next level)
+                    <?php endif; ?>
                 </small>
             </div>
         <?php endif; ?>

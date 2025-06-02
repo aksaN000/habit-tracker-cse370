@@ -771,6 +771,12 @@ include '../views/partials/header.php';
 </div>
 
 <?php
+// Include modals
+include __DIR__ . '/partials/add_habit_modal.php';
+include __DIR__ . '/partials/add_goal_modal.php';
+?>
+
+<?php
 // Include footer
 include __DIR__ . '/../views/partials/footer.php';
 

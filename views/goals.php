@@ -320,8 +320,9 @@ include '../views/partials/header.php';
 </div>
 
 <?php
-// Include habit modal (goal modal already exists above)
+// Include modals
 include __DIR__ . '/partials/add_habit_modal.php';
+include __DIR__ . '/partials/add_goal_modal.php';
 
 // Include footer
 include __DIR__ . '/partials/footer.php';

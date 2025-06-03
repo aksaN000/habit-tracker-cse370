@@ -138,17 +138,12 @@ include '../views/partials/header.php';
                         <div class="level-badge">
                             <?php echo $user->level; ?>
                         </div>
-                        <h4 class="text-white mt-2"><?php echo $levelInfo['title']; ?></h4>
-                        <p class="text-white-50"><?php echo $levelInfo['badge_name']; ?></p>
-                        <p class="text-white">Total XP: <?php echo $user->current_xp; ?></p>
+                        <h4 class="mt-2"><?php echo $levelInfo['title']; ?></h4>
+                        <p><?php echo $levelInfo['badge_name']; ?></p>
+                        <p>Total XP: <?php echo $user->current_xp; ?></p>
                     </div>
                 </div>
             </div>
-            
-            <!-- Modern Floating Action Button for Quick Habit Addition -->
-            <button class="fab tooltip-modern" data-tooltip="Add New Habit" onclick="document.getElementById('addHabitModal').click()">
-                <i class="bi bi-plus"></i>
-            </button>
             
             <!-- Quick Stats Cards with Modern Animation -->
             <div class="container-fluid mt-4">

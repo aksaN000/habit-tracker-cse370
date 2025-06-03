@@ -1,13 +1,7 @@
 <!-- views/partials/footer.php -->
-<footer class="footer mt-auto py-3 <?php 
-    $theme = $_SESSION['user_theme'] ?? 'light';
-    if($theme === 'system') {
-        $theme = (isset($_COOKIE['system_dark']) && $_COOKIE['system_dark'] === 'true') ? 'dark' : 'light';
-    }
-    echo ($theme === 'dark') ? 'bg-dark text-white' : 'bg-light'; 
-?>">
+<footer class="footer mt-auto py-3">
     <div class="container text-center">
-        <span class="<?php echo ($theme === 'dark') ? 'text-white-50' : 'text-muted'; ?>">©  Habit Tracker. CSE370, Spring 2025</span>
+        <span class="footer-text">©  Habit Tracker. CSE370, Spring 2025</span>
     </div>
 </footer>
 

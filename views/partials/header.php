@@ -159,7 +159,7 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                                 $unreadCount = isset($totalUnreadCount) ? $totalUnreadCount : 0;
                                 if($unreadCount > 0):
                                 ?>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                <span class="position-absolute badge rounded-pill bg-danger translate-middle" style="top: -2px; left: 100%;">
                                     <?php echo $unreadCount; ?>
                                     <span class="visually-hidden">unread notifications</span>
                                 </span>

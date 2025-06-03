@@ -12,15 +12,10 @@ $current_theme = $_SESSION['user_theme'] ?? 'light';
 $color_scheme = $_SESSION['color_scheme'] ?? 'default';
 $compact_mode = $_SESSION['compact_mode'] ?? 0;
 
-// Determine sidebar classes based on theme
+// Determine sidebar classes based on theme (now using CSS variables)
 $sidebar_classes = 'sidebar';
-$sidebar_bg_class = 'bg-light';
-$sidebar_text_class = '';
-
-if($current_theme === 'dark' || ($current_theme === 'system' && isset($_COOKIE['system_dark']) && $_COOKIE['system_dark'] === 'true')) {
-    $sidebar_bg_class = 'bg-dark';
-    $sidebar_text_class = 'text-white';
-}
+$sidebar_bg_class = ''; // Remove hardcoded background classes
+$sidebar_text_class = ''; // Remove hardcoded text classes
 
 // Add compact mode class if enabled
 if($compact_mode) {
@@ -63,34 +58,36 @@ if($user) {
     <div class="position-sticky pt-3">
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? '../index.php' : 'index.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? '../index.php' : 'index.php'; ?>">
                     <i class="bi bi-speedometer2"></i>
                     Dashboard
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'habits.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'habits.php' : 'views/habits.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'habits.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'habits.php' : 'views/habits.php'; ?>">
                     <i class="bi bi-check-circle"></i>
                     My Habits
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'goals.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'goals.php' : 'views/goals.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'goals.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'goals.php' : 'views/goals.php'; ?>">
                     <i class="bi bi-trophy"></i>
                     Goals
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'challenges.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'challenges.php' : 'views/challenges.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'challenges.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'challenges.php' : 'views/challenges.php'; ?>">
                     <i class="bi bi-people"></i>
                     Challenges
                 </a>
             </li>
             
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'community.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'community.php' : 'views/community.php'; ?>">
-                    <i class="bi bi-globe"></i>
-                    Community
+                <div class="community-badge">
+                    <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'community.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'community.php' : 'views/community.php'; ?>">
+                        <i class="bi bi-globe"></i>
+                        Community
+                    </a>
                     <?php
                     // Get friend request count
                     if(isset($_SESSION['user_id'])) {
@@ -103,53 +100,53 @@ if($user) {
                         
                         if($result && $result['count'] > 0):
                     ?>
-                        <span class="badge rounded-pill bg-danger float-end"><?php echo $result['count']; ?></span>
+                        <span class="badge rounded-pill bg-danger"><?php echo $result['count']; ?></span>
                     <?php
                         endif;
                     }
                     ?>
-                </a>
+                </div>
             </li>
 
 
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'journal.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'journal.php' : 'views/journal.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'journal.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'journal.php' : 'views/journal.php'; ?>">
                     <i class="bi bi-journal-text"></i>
                     Journal
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'analytics.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'analytics.php' : 'views/analytics.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'analytics.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'analytics.php' : 'views/analytics.php'; ?>">
                     <i class="bi bi-graph-up"></i>
                     Analytics
                 </a>
             </li>
         </ul>
         
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 <?php echo $sidebar_text_class; ?> text-muted">
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
             <span>Quick Actions</span>
         </h6>
         <ul class="nav flex-column mb-2">
             <li class="nav-item">
-                <a class="nav-link <?php echo $sidebar_text_class; ?>" href="#" data-bs-toggle="modal" data-bs-target="#addHabitModal">
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#addHabitModal">
                     <i class="bi bi-plus-circle"></i>
                     Add New Habit
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo $sidebar_text_class; ?>" href="#" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#addGoalModal">
                     <i class="bi bi-plus-circle"></i>
                     Add New Goal
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'challenges.php?action=join' : 'views/challenges.php?action=join'; ?>">
+                <a class="nav-link" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'challenges.php?action=join' : 'views/challenges.php?action=join'; ?>">
                     <i class="bi bi-plus-circle"></i>
                     Join Challenge
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'journal.php?action=new' : 'views/journal.php?action=new'; ?>">
+                <a class="nav-link" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'journal.php?action=new' : 'views/journal.php?action=new'; ?>">
                     <i class="bi bi-plus-circle"></i>
                     New Journal Entry
                 </a>
@@ -157,46 +154,46 @@ if($user) {
         </ul>
         
         <?php if($user): ?>
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 <?php echo $sidebar_text_class; ?> text-muted">
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                 <span>Your Progress</span>
             </h6>
-            <div class="px-3 py-2">
+            <div class="progress-section">
                 <div class="mb-2">
-                    <small class="<?php echo $sidebar_text_class; ?> text-muted">Level <?php echo $current_level; ?></small>
-                    <div class="progress" style="height: 5px;">
+                    <small class="text-muted">Level <?php echo $current_level; ?></small>
+                    <div class="progress">
                         <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $xp_progress_percentage; ?>%" aria-valuenow="<?php echo $xp_progress_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
-                <small class="<?php echo $sidebar_text_class; ?> text-muted">
+                <small class="text-muted">
                     <?php echo $xp_for_current_level; ?> / <?php echo $xp_needed_for_next_level; ?> XP to Level <?php echo $current_level + 1; ?>
                 </small>
             </div>
         <?php endif; ?>
         
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 <?php echo $sidebar_text_class; ?> text-muted">
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
             <span>Account</span>
         </h6>
         <ul class="nav flex-column mb-2">
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'profile.php' : 'views/profile.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'profile.php' : 'views/profile.php'; ?>">
                     <i class="bi bi-person"></i>
                     Profile
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'achievements.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'achievements.php' : 'views/achievements.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'achievements.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'achievements.php' : 'views/achievements.php'; ?>">
                     <i class="bi bi-award"></i>
                     Achievements
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'settings.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'settings.php' : 'views/settings.php'; ?>">
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'settings.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'settings.php' : 'views/settings.php'; ?>">
                     <i class="bi bi-gear"></i>
                     Settings
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? '../controllers/process_logout.php' : 'controllers/process_logout.php'; ?>">
+                <a class="nav-link" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? '../controllers/process_logout.php' : 'controllers/process_logout.php'; ?>">
                     <i class="bi bi-box-arrow-right"></i>
                     Logout
                 </a>

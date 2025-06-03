@@ -102,7 +102,7 @@ include '../views/partials/header.php';
                 </div>
                 <div class="col-md-3 mb-3">
                     <div class="stat-card will-change-transform">
-                        <div class="stat-number"><?php echo array_sum(array_column($habits, 'completed_today')); ?></div>
+                        <div class="stat-number"><?php echo array_sum(array_column($habits, 'is_completed_today')); ?></div>
                         <div class="stat-label">Completed Today</div>
                     </div>
                 </div>
@@ -110,7 +110,10 @@ include '../views/partials/header.php';
                     <div class="stat-card will-change-transform">
                         <div class="stat-number">
                             <?php 
-                            $activeHabits = array_filter($habits, function($h) { return $h['status'] === 'active'; });
+                            // Consider a habit active if it has no end_date or end_date is in the future
+                            $activeHabits = array_filter($habits, function($h) { 
+                                return empty($h['end_date']) || strtotime($h['end_date']) >= strtotime(date('Y-m-d')); 
+                            });
                             echo count($activeHabits);
                             ?>
                         </div>
@@ -121,7 +124,15 @@ include '../views/partials/header.php';
                     <div class="stat-card will-change-transform">
                         <div class="stat-number">
                             <?php 
-                            $avgCompletion = count($habits) > 0 ? round((array_sum(array_column($habits, 'completion_rate')) / count($habits))) : 0;
+                            // Calculate average completion rate based on days since start
+                            $totalRate = 0;
+                            $habitCount = count($habits);
+                            foreach($habits as $habit) {
+                                $daysSinceStart = (strtotime(date('Y-m-d')) - strtotime($habit['start_date'])) / (60 * 60 * 24) + 1;
+                                $completionRate = $daysSinceStart > 0 ? round(($habit['completion_count'] / $daysSinceStart) * 100) : 0;
+                                $totalRate += min($completionRate, 100); // Cap at 100%
+                            }
+                            $avgCompletion = $habitCount > 0 ? round($totalRate / $habitCount) : 0;
                             echo $avgCompletion;
                             ?>%
                         </div>
@@ -152,18 +163,17 @@ include '../views/partials/header.php';
                 <?php else: ?>
                     <?php foreach($habits as $index => $habit): ?>
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="habit-card-modern <?= $habit['completed_today'] ? 'completed' : '' ?>" 
+                            <div class="habit-card-modern <?= $habit['is_completed_today'] ? 'completed' : '' ?>" 
                                  style="animation-delay: <?= $index * 0.1 ?>s">
                                 
                                 <!-- Habit Header -->
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div class="flex-grow-1">
-                                        <h5 class="card-title mb-1"><?= htmlspecialchars($habit['name']) ?></h5>
-                                        <small class="text-muted">
-                                            <i class="bi bi-tag me-1"></i>
-                                            <?= htmlspecialchars($habit['category_name'] ?? 'Uncategorized') ?>
-                                        </small>
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-start mb-3">                                <div class="flex-grow-1">
+                                    <h5 class="card-title mb-1"><?= htmlspecialchars($habit['title']) ?></h5>
+                                    <small class="text-muted">
+                                        <i class="bi bi-tag me-1"></i>
+                                        <?= htmlspecialchars($habit['category_name'] ?? 'Uncategorized') ?>
+                                    </small>
+                                </div>
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
                                             <i class="bi bi-three-dots"></i>
@@ -190,13 +200,25 @@ include '../views/partials/header.php';
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <span class="small text-muted">Progress</span>
-                                        <span class="small fw-bold"><?= $habit['completion_rate'] ?>%</span>
+                                        <span class="small fw-bold">
+                                            <?php 
+                                            // Calculate completion rate based on days since start
+                                            $daysSinceStart = (strtotime(date('Y-m-d')) - strtotime($habit['start_date'])) / (60 * 60 * 24) + 1;
+                                            $completionRate = $daysSinceStart > 0 ? round(($habit['completion_count'] / $daysSinceStart) * 100) : 0;
+                                            $completionRate = min($completionRate, 100); // Cap at 100%
+                                            echo $completionRate;
+                                            ?>%
+                                        </span>
                                     </div>
                                     <div class="progress progress-modern">
                                         <div class="progress-bar bg-gradient" 
                                              role="progressbar" 
-                                             style="width: <?= $habit['completion_rate'] ?>%"
-                                             aria-valuenow="<?= $habit['completion_rate'] ?>" 
+                                             style="width: <?php 
+                                             $daysSinceStart = (strtotime(date('Y-m-d')) - strtotime($habit['start_date'])) / (60 * 60 * 24) + 1;
+                                             $completionRate = $daysSinceStart > 0 ? round(($habit['completion_count'] / $daysSinceStart) * 100) : 0;
+                                             echo min($completionRate, 100); // Cap at 100%
+                                             ?>%"
+                                             aria-valuenow="<?php echo min($completionRate, 100); ?>" 
                                              aria-valuemin="0" 
                                              aria-valuemax="100">
                                         </div>
@@ -209,28 +231,28 @@ include '../views/partials/header.php';
                                         <div class="small text-muted">Streak</div>
                                         <div class="fw-bold text-warning">
                                             <i class="bi bi-fire"></i>
-                                            <?= $habit['current_streak'] ?? 0 ?>
+                                            <?= $habit['streak'] ?? 0 ?>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="small text-muted">Best</div>
                                         <div class="fw-bold text-success">
                                             <i class="bi bi-trophy"></i>
-                                            <?= $habit['best_streak'] ?? 0 ?>
+                                            <?= $habit['streak'] ?? 0 ?>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="small text-muted">Total</div>
                                         <div class="fw-bold text-info">
                                             <i class="bi bi-check-circle"></i>
-                                            <?= $habit['total_completions'] ?? 0 ?>
+                                            <?= $habit['completion_count'] ?? 0 ?>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <!-- Action Buttons -->
                                 <div class="d-grid gap-2">
-                                    <?php if(!$habit['completed_today']): ?>
+                                    <?php if(!$habit['is_completed_today']): ?>
                                         <form class="habit-completion-form" action="/controllers/process_habit_completion.php" method="POST">
                                             <input type="hidden" name="habit_id" value="<?= $habit['id'] ?>">
                                             <button type="submit" class="btn btn-success habit-complete-btn btn-glow w-100">

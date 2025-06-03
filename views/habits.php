@@ -238,7 +238,7 @@ include '../views/partials/header.php';
                                         <div class="small text-muted">Best</div>
                                         <div class="fw-bold text-success">
                                             <i class="bi bi-trophy"></i>
-                                            <?= $habit['streak'] ?? 0 ?>
+                                            <?= $habit['best_streak'] ?? 0 ?>
                                         </div>
                                     </div>
                                     <div class="col-4">

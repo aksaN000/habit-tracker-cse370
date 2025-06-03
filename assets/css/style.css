@@ -1011,93 +1011,335 @@ body {
 }
 
 /* Responsive Enhancements */
-@media (max-width: 768px) {
-    .fab {
-        bottom: 1rem;
-        right: 1rem;
-        width: 50px;
-        height: 50px;
-        font-size: 1.25rem;
+@media (max-width: 576px) {
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
     }
     
-    .stat-number {
-        font-size: 2rem;
+    /* Stack stat cards vertically on small screens */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .stat-card {
-        padding: 1.5rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
     }
     
-    .tooltip-modern::before {
-        font-size: 0.75rem;
-        padding: 0.375rem 0.75rem;
+    .stat-number {
+        font-size: 1.75rem;
+    }
+    
+    /* Adjust habit cards for mobile */
+    .habit-card {
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+    
+    .habit-card .row {
+        flex-direction: column;
+    }
+    
+    .habit-card .col-md-8,
+    .habit-card .col-md-4 {
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+    
+    /* Mobile-friendly buttons */
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 0.5rem;
+        border-radius: var(--border-radius) !important;
+    }
+    
+    /* Touch-friendly interactive elements */
+    .btn, .nav-link, .dropdown-item {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
     }
 }
 
-/* Dark Mode Enhancements */
-[data-bs-theme="dark"] {
-    /* Enhanced dark mode variables */
-    --glass-bg: rgba(0, 0, 0, 0.25);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+@media (max-width: 768px) {
+    /* Tablet responsive adjustments */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .welcome-section {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .welcome-section .row {
+        flex-direction: column;
+    }
+    
+    /* Adjust progress section */
+    .progress-section .row {
+        flex-direction: column;
+    }
+    
+    .progress-section .col {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Calendar responsive */
+    .calendar-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .calendar-day {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+    }
 }
 
-[data-bs-theme="dark"] body {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+/* Mobile Navigation Enhancements */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: var(--border-radius);
+        margin-top: 1rem;
+        padding: 1rem;
+        border: 1px solid var(--glass-border);
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.75rem 1rem;
+        margin: 0.25rem 0;
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        background: rgba(79, 172, 254, 0.1);
+        transform: translateX(5px);
+    }
+    
+    .dropdown-menu {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+    }
 }
 
-[data-bs-theme="dark"] .loading-skeleton {
+/* Enhanced Loading States for Better UX */
+.skeleton-loader {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: loading 1.5s infinite;
+}
+
+[data-bs-theme="dark"] .skeleton-loader {
     background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
     background-size: 200px 100%;
 }
 
-[data-bs-theme="dark"] .rainbow-border > * {
-    background: #2c3034;
+.skeleton-text {
+    height: 1em;
+    margin-bottom: 0.5em;
+    border-radius: 4px;
 }
 
-[data-bs-theme="dark"] .stat-label {
-    color: #9ca3af;
+.skeleton-title {
+    height: 1.5em;
+    width: 60%;
+    margin-bottom: 1em;
+    border-radius: 4px;
 }
 
-[data-bs-theme="dark"] .calendar-day:hover {
-    background: rgba(102, 126, 234, 0.2);
+.skeleton-card {
+    height: 200px;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
 }
 
-/* Performance Optimizations */
-.will-change-transform {
-    will-change: transform;
+/* Improved Form Styling */
+.form-floating {
+    position: relative;
 }
 
-.will-change-opacity {
-    will-change: opacity;
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    opacity: 0.8;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    color: var(--primary-color);
 }
 
-/* Accessibility Enhancements */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
+}
+
+/* Better Error States */
+.is-invalid {
+    border-color: #dc3545;
+    background-image: none;
+}
+
+.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Enhanced Dark Mode Improvements */
+[data-bs-theme="dark"] {
+    --glass-bg-strong: rgba(0, 0, 0, 0.4);
+    --text-muted-dark: #9ca3af;
+    --border-dark: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .welcome-section {
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--border-dark);
+}
+
+[data-bs-theme="dark"] .habit-card,
+[data-bs-theme="dark"] .stat-card {
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--border-dark);
+}
+
+[data-bs-theme="dark"] .progress-bar {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Improved Loading States */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(79, 172, 254, 0.1);
+    border-left: 4px solid #4facfe;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Tooltip System */
+.tooltip-modern {
+    position: relative;
+    cursor: pointer;
+}
+
+.tooltip-modern:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    animation: tooltipFadeIn 0.3s ease forwards;
+}
+
+.tooltip-modern:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 115%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    opacity: 0;
+    animation: tooltipFadeIn 0.3s ease forwards;
+}
+
+@keyframes tooltipFadeIn {
+    to {
+        opacity: 1;
     }
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-    .card {
-        border: 2px solid;
-    }
-    
-    .btn {
-        border: 2px solid;
-    }
+/* Improved Focus Management */
+.focus-trap {
+    outline: none;
 }
 
-/* Focus indicators for better accessibility */
-.btn:focus-visible,
-.nav-link:focus-visible,
-.form-control:focus-visible {
+.focus-trap:focus-visible {
     outline: 2px solid #4facfe;
     outline-offset: 2px;
+}
+
+/* Enhanced Button Interactions */
+.btn-modern {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-modern::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-modern:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Smooth Page Transitions */
+.page-transition {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: pageEnter 0.6s ease forwards;
+}
+
+@keyframes pageEnter {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

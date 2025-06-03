@@ -1,4 +1,3 @@
-
 <?php
 // models/Habit.php - Habit model
 class Habit {
@@ -199,8 +198,9 @@ public function getStreak($habit_id) {
         // Return results
         $habits = [];
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            // Calculate streak
+            // Calculate streak and best streak
             $streak = $this->calculateStreak($row['id']);
+            $bestStreak = $this->calculateBestStreak($row['id']);
             
             // Format the habit data
             $habits[] = [
@@ -219,6 +219,7 @@ public function getStreak($habit_id) {
                 'last_completion_date' => $row['last_completion_date'],
                 'is_completed_today' => (bool)$row['is_completed_today'],
                 'streak' => $streak,
+                'best_streak' => $bestStreak,
                 'created_at' => $row['created_at']
             ];
         }
@@ -403,6 +404,61 @@ public function getStreak($habit_id) {
         }
         
         return $streak;
+    }
+    
+    // Calculate best streak for a habit (all-time highest streak)
+    private function calculateBestStreak($habit_id) {
+        // Get all completions ordered by date
+        $query = "SELECT completion_date FROM " . $this->completion_table . " 
+                  WHERE habit_id = :habit_id 
+                  ORDER BY completion_date ASC";
+        
+        // Prepare statement
+        $stmt = $this->conn->prepare($query);
+        
+        // Bind parameter
+        $stmt->bindParam(':habit_id', $habit_id);
+        
+        // Execute query
+        $stmt->execute();
+        
+        // Get all completion dates
+        $completions = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        // If no completions, return 0
+        if(empty($completions)) {
+            return 0;
+        }
+        
+        // Normalize dates
+        $normalizedCompletions = array_map(function($date) {
+            return date('Y-m-d', strtotime($date));
+        }, $completions);
+        
+        // Remove duplicates and sort
+        $normalizedCompletions = array_unique($normalizedCompletions);
+        sort($normalizedCompletions);
+        
+        $bestStreak = 1;
+        $currentStreak = 1;
+        
+        // Loop through all dates to find the longest streak
+        for($i = 1; $i < count($normalizedCompletions); $i++) {
+            $currentDate = new DateTime($normalizedCompletions[$i]);
+            $previousDate = new DateTime($normalizedCompletions[$i-1]);
+            $diff = $currentDate->diff($previousDate);
+            
+            // If the difference is 1 day, increment current streak
+            if($diff->days == 1) {
+                $currentStreak++;
+                $bestStreak = max($bestStreak, $currentStreak);
+            } else {
+                // Reset current streak if there's a gap
+                $currentStreak = 1;
+            }
+        }
+        
+        return $bestStreak;
     }
     
     // Delete a habit

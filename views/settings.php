@@ -323,46 +323,40 @@ include '../views/partials/header.php';
                                     <label class="form-label">Select Theme</label>
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" <?php echo ($current_theme === 'light') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="themeLight">
-                                                    <div class="card">
-                                                        <div class="card-body text-center">
-                                                            <i class="bi bi-brightness-high fs-3 text-warning mb-2"></i>
-                                                            <h6>Light Theme</h6>
-                                                            <small class="text-muted">Default bright theme</small>
-                                                        </div>
+                                            <input type="radio" name="theme" id="themeLight" value="light" <?php echo ($current_theme === 'light') ? 'checked' : ''; ?> style="display: none;">
+                                            <label class="form-check-label w-100" for="themeLight">
+                                                <div class="theme-card card">
+                                                    <div class="card-body text-center">
+                                                        <i class="bi bi-brightness-high fs-3 text-warning mb-2"></i>
+                                                        <h6>Light Theme</h6>
+                                                        <small class="text-muted">Default bright theme</small>
                                                     </div>
-                                                </label>
-                                            </div>
+                                                </div>
+                                            </label>
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark" <?php echo ($current_theme === 'dark') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="themeDark">
-                                                    <div class="card bg-dark text-white">
-                                                        <div class="card-body text-center">
-                                                            <i class="bi bi-moon-stars fs-3 text-info mb-2"></i>
-                                                            <h6>Dark Theme</h6>
-                                                            <small class="text-muted">Easier on the eyes</small>
-                                                        </div>
+                                            <input type="radio" name="theme" id="themeDark" value="dark" <?php echo ($current_theme === 'dark') ? 'checked' : ''; ?> style="display: none;">
+                                            <label class="form-check-label w-100" for="themeDark">
+                                                <div class="theme-card card bg-dark text-white">
+                                                    <div class="card-body text-center">
+                                                        <i class="bi bi-moon-stars fs-3 text-info mb-2"></i>
+                                                        <h6>Dark Theme</h6>
+                                                        <small class="text-light opacity-75">Easier on the eyes</small>
                                                     </div>
-                                                </label>
-                                            </div>
+                                                </div>
+                                            </label>
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="theme" id="themeSystem" value="system" <?php echo ($current_theme === 'system') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="themeSystem">
-                                                    <div class="card">
-                                                        <div class="card-body text-center">
-                                                            <i class="bi bi-display fs-3 text-primary mb-2"></i>
-                                                            <h6>System Theme</h6>
-                                                            <small class="text-muted">Follow system settings</small>
-                                                        </div>
+                                            <input type="radio" name="theme" id="themeSystem" value="system" <?php echo ($current_theme === 'system') ? 'checked' : ''; ?> style="display: none;">
+                                            <label class="form-check-label w-100" for="themeSystem">
+                                                <div class="theme-card card">
+                                                    <div class="card-body text-center">
+                                                        <i class="bi bi-display fs-3 text-primary mb-2"></i>
+                                                        <h6>System Theme</h6>
+                                                        <small class="text-muted">Follow system settings</small>
                                                     </div>
-                                                </label>
-                                            </div>
+                                                </div>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -371,56 +365,56 @@ include '../views/partials/header.php';
                                     <label class="form-label">Color Scheme</label>
                                     <div class="row">
                                         <div class="col-md-2 col-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="color_scheme" id="colorDefault" value="default" <?php echo ($current_color_scheme === 'default') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="colorDefault">
-                                                    <div class="p-3 rounded-circle bg-primary"></div>
-                                                    <small class="d-block mt-1 text-center">Default</small>
+                                            <div class="settings-color-option">
+                                                <input type="radio" name="color_scheme" id="colorDefault" value="default" <?php echo ($current_color_scheme === 'default') ? 'checked' : ''; ?>>
+                                                <label for="colorDefault">
+                                                    <div class="color-circle" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                                                    <div class="color-label">Default</div>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-2 col-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="color_scheme" id="colorTeal" value="teal" <?php echo ($current_color_scheme === 'teal') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="colorTeal">
-                                                    <div class="p-3 rounded-circle" style="background-color: #20c997;"></div>
-                                                    <small class="d-block mt-1 text-center">Teal</small>
+                                            <div class="settings-color-option">
+                                                <input type="radio" name="color_scheme" id="colorTeal" value="teal" <?php echo ($current_color_scheme === 'teal') ? 'checked' : ''; ?>>
+                                                <label for="colorTeal">
+                                                    <div class="color-circle" style="background: linear-gradient(135deg, #20c997 0%, #0ea5e9 100%);"></div>
+                                                    <div class="color-label">Teal</div>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-2 col-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="color_scheme" id="colorIndigo" value="indigo" <?php echo ($current_color_scheme === 'indigo') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="colorIndigo">
-                                                    <div class="p-3 rounded-circle" style="background-color: #6610f2;"></div>
-                                                    <small class="d-block mt-1 text-center">Indigo</small>
+                                            <div class="settings-color-option">
+                                                <input type="radio" name="color_scheme" id="colorIndigo" value="indigo" <?php echo ($current_color_scheme === 'indigo') ? 'checked' : ''; ?>>
+                                                <label for="colorIndigo">
+                                                    <div class="color-circle" style="background: linear-gradient(135deg, #6610f2 0%, #6366f1 100%);"></div>
+                                                    <div class="color-label">Indigo</div>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-2 col-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="color_scheme" id="colorRose" value="rose" <?php echo ($current_color_scheme === 'rose') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="colorRose">
-                                                    <div class="p-3 rounded-circle" style="background-color: #e83e8c;"></div>
-                                                    <small class="d-block mt-1 text-center">Rose</small>
+                                            <div class="settings-color-option">
+                                                <input type="radio" name="color_scheme" id="colorRose" value="rose" <?php echo ($current_color_scheme === 'rose') ? 'checked' : ''; ?>>
+                                                <label for="colorRose">
+                                                    <div class="color-circle" style="background: linear-gradient(135deg, #e83e8c 0%, #f472b6 100%);"></div>
+                                                    <div class="color-label">Rose</div>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-2 col-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="color_scheme" id="colorAmber" value="amber" <?php echo ($current_color_scheme === 'amber') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="colorAmber">
-                                                    <div class="p-3 rounded-circle" style="background-color: #fd7e14;"></div>
-                                                    <small class="d-block mt-1 text-center">Amber</small>
+                                            <div class="settings-color-option">
+                                                <input type="radio" name="color_scheme" id="colorAmber" value="amber" <?php echo ($current_color_scheme === 'amber') ? 'checked' : ''; ?>>
+                                                <label for="colorAmber">
+                                                    <div class="color-circle" style="background: linear-gradient(135deg, #fd7e14 0%, #f59e0b 100%);"></div>
+                                                    <div class="color-label">Amber</div>
                                                 </label>
                                             </div>
                                         </div>
                                         <div class="col-md-2 col-4 mb-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="color_scheme" id="colorEmerald" value="emerald" <?php echo ($current_color_scheme === 'emerald') ? 'checked' : ''; ?>>
-                                                <label class="form-check-label" for="colorEmerald">
-                                                    <div class="p-3 rounded-circle" style="background-color: #28a745;"></div>
-                                                    <small class="d-block mt-1 text-center">Emerald</small>
+                                            <div class="settings-color-option">
+                                                <input type="radio" name="color_scheme" id="colorEmerald" value="emerald" <?php echo ($current_color_scheme === 'emerald') ? 'checked' : ''; ?>>
+                                                <label for="colorEmerald">
+                                                    <div class="color-circle" style="background: linear-gradient(135deg, #28a745 0%, #10b981 100%);"></div>
+                                                    <div class="color-label">Emerald</div>
                                                 </label>
                                             </div>
                                         </div>

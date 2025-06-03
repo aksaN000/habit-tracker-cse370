@@ -479,3 +479,159 @@ function showErrorMessage(message, container = null) {
         }
     }, 5000);
 }
+
+// Enhanced theme and color scheme handling
+function initThemeSystem() {
+    // Handle theme selection changes
+    document.querySelectorAll('input[name="theme"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const theme = this.value;
+            applyTheme(theme);
+        });
+    });
+    
+    // Handle color scheme changes
+    document.querySelectorAll('input[name="color_scheme"]').forEach(input => {
+        input.addEventListener('change', function() {
+            const colorScheme = this.value;
+            applyColorScheme(colorScheme);
+        });
+    });
+    
+    // Initial theme application
+    const checkedTheme = document.querySelector('input[name="theme"]:checked');
+    const checkedColorScheme = document.querySelector('input[name="color_scheme"]:checked');
+    
+    if (checkedTheme) {
+        applyTheme(checkedTheme.value);
+    }
+    
+    if (checkedColorScheme) {
+        applyColorScheme(checkedColorScheme.value);
+    }
+}
+
+function applyTheme(theme) {
+    const html = document.documentElement;
+    
+    if (theme === 'dark') {
+        html.setAttribute('data-bs-theme', 'dark');
+    } else if (theme === 'light') {
+        html.setAttribute('data-bs-theme', 'light');
+    } else if (theme === 'system') {
+        // Check system preference
+        const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        html.setAttribute('data-bs-theme', systemDark ? 'dark' : 'light');
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addListener(function(e) {
+                if (document.querySelector('input[name="theme"]:checked')?.value === 'system') {
+                    html.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
+                }
+            });
+        }
+    }
+    
+    // Store theme preference
+    localStorage.setItem('habit-tracker-theme', theme);
+}
+
+function applyColorScheme(colorScheme) {
+    const body = document.body;
+    
+    // Remove existing color classes
+    body.classList.remove('color-default', 'color-teal', 'color-indigo', 'color-rose', 'color-amber', 'color-emerald');
+    
+    // Add new color class
+    body.classList.add(`color-${colorScheme}`);
+    
+    // Store color scheme preference
+    localStorage.setItem('habit-tracker-color-scheme', colorScheme);
+    
+    // Update CSS custom properties
+    const root = document.documentElement;
+    const colorSchemes = {
+        'default': {
+            primary: '#667eea',
+            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            accent: '#4facfe'
+        },
+        'teal': {
+            primary: '#20c997',
+            gradient: 'linear-gradient(135deg, #20c997 0%, #0ea5e9 100%)',
+            accent: '#06b6d4'
+        },
+        'indigo': {
+            primary: '#6610f2',
+            gradient: 'linear-gradient(135deg, #6610f2 0%, #6366f1 100%)',
+            accent: '#8b5cf6'
+        },
+        'rose': {
+            primary: '#e83e8c',
+            gradient: 'linear-gradient(135deg, #e83e8c 0%, #f472b6 100%)',
+            accent: '#ec4899'
+        },
+        'amber': {
+            primary: '#fd7e14',
+            gradient: 'linear-gradient(135deg, #fd7e14 0%, #f59e0b 100%)',
+            accent: '#f97316'
+        },
+        'emerald': {
+            primary: '#28a745',
+            gradient: 'linear-gradient(135deg, #28a745 0%, #10b981 100%)',
+            accent: '#059669'
+        }
+    };
+    
+    const colors = colorSchemes[colorScheme] || colorSchemes['default'];
+    root.style.setProperty('--primary-color', colors.primary);
+    root.style.setProperty('--primary-gradient', colors.gradient);
+    root.style.setProperty('--accent-color', colors.accent);
+}
+
+// Settings page specific enhancements
+function initSettingsPage() {
+    // Add visual feedback for theme and color selection
+    document.querySelectorAll('.theme-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove active class from all theme cards
+            document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+            // Add active class to clicked card
+            this.classList.add('active');
+        });
+    });
+    
+    document.querySelectorAll('.settings-color-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove active class from all color options
+            document.querySelectorAll('.settings-color-option').forEach(o => o.classList.remove('active'));
+            // Add active class to clicked option
+            this.classList.add('active');
+        });
+    });
+    
+    // Apply initial active states
+    const activeTheme = document.querySelector('input[name="theme"]:checked');
+    if (activeTheme) {
+        const themeCard = activeTheme.closest('label').querySelector('.theme-card');
+        if (themeCard) themeCard.classList.add('active');
+    }
+    
+    const activeColor = document.querySelector('input[name="color_scheme"]:checked');
+    if (activeColor) {
+        const colorOption = activeColor.closest('.settings-color-option');
+        if (colorOption) colorOption.classList.add('active');
+    }
+}
+
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initThemeSystem();
+    
+    // Check if we're on the settings page
+    if (document.querySelector('.settings-color-option')) {
+        initSettingsPage();
+    }
+});

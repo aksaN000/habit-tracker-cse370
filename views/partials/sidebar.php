@@ -88,8 +88,8 @@ if($user) {
             </li>
             
             <li class="nav-item">
-                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'community.php' ? 'active' : ''; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'community.php' : 'views/community.php'; ?>">
-                    <i class="bi bi-people"></i>
+                <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) === 'community.php' ? 'active' : ''; ?> <?php echo $sidebar_text_class; ?>" href="<?php echo (basename(dirname($_SERVER['PHP_SELF'])) === 'views') ? 'community.php' : 'views/community.php'; ?>">
+                    <i class="bi bi-globe"></i>
                     Community
                     <?php
                     // Get friend request count

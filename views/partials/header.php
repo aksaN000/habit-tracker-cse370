@@ -132,6 +132,11 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'community.php' : 'views/community.php'; ?>">
+                            <i class="bi bi-globe"></i> Community
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'journal.php' : 'views/journal.php'; ?>">
                             <i class="bi bi-journal-text"></i> Journal
                         </a>

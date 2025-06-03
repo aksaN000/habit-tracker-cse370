@@ -92,585 +92,358 @@ include '../views/partials/header.php';
                 </div>
             <?php endif; ?>
             
-            <!-- Habit Statistics -->
+            <!-- Modern Habit Statistics with Enhanced Styling -->
             <div class="row mb-4">
                 <div class="col-md-3 mb-3">
-                    <div class="card border-primary">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Total Habits</h5>
-                            <h1 class="display-4"><?php echo count($habits); ?></h1>
-                        </div>
+                    <div class="stat-card will-change-transform">
+                        <div class="stat-number"><?php echo count($habits); ?></div>
+                        <div class="stat-label">Total Habits</div>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <div class="card border-success">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Today's Completion</h5>
-                            <?php
-                            $today_habits = 0;
-                            $completed_today = 0;
-                            foreach($habits as $habit) {
-                                if($habitController->isActiveToday($habit['id'])) {
-                                    $today_habits++;
-                                    if($habit['is_completed_today']) {
-                                        $completed_today++;
-                                    }
-                                }
-                            }
-                            
-                            $completion_percentage = $today_habits > 0 ? round(($completed_today / $today_habits) * 100) : 0;
-                            ?>
-                            <h1 class="display-4"><?php echo $completion_percentage; ?>%</h1>
-                            <p class="text-muted"><?php echo $completed_today; ?>/<?php echo $today_habits; ?> completed</p>
-                        </div>
+                    <div class="stat-card will-change-transform">
+                        <div class="stat-number"><?php echo array_sum(array_column($habits, 'completed_today')); ?></div>
+                        <div class="stat-label">Completed Today</div>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <div class="card border-warning">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Current Streak</h5>
+                    <div class="stat-card will-change-transform">
+                        <div class="stat-number">
                             <?php 
-                            $current_streak = $habitController->getCurrentStreak($user->id);
+                            $activeHabits = array_filter($habits, function($h) { return $h['status'] === 'active'; });
+                            echo count($activeHabits);
                             ?>
-                            <h1 class="display-4"><?php echo $current_streak['streak_days']; ?></h1>
-                            <p class="text-muted">days</p>
                         </div>
+                        <div class="stat-label">Active Habits</div>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <div class="card border-danger">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">Longest Streak</h5>
+                    <div class="stat-card will-change-transform">
+                        <div class="stat-number">
                             <?php 
-                            $longest_streak = $habitController->getLongestStreak($user->id);
-                            ?>
-                            <h1 class="display-4"><?php echo $longest_streak['streak_days']; ?></h1>
-                            <p class="text-muted"><?php echo $longest_streak['habit_title']; ?></p>
+                            $avgCompletion = count($habits) > 0 ? round((array_sum(array_column($habits, 'completion_rate')) / count($habits))) : 0;
+                            echo $avgCompletion;
+                            ?>%
                         </div>
+                        <div class="stat-label">Avg Completion</div>
                     </div>
                 </div>
             </div>
             
-            <!-- Filter and Sort Options -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
-                            <label for="categoryFilter" class="form-label">Filter by Category</label>
-                            <select class="form-select" id="categoryFilter">
-                                <option value="all">All Categories</option>
-                                <?php foreach($categories as $category): ?>
-                                    <option value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label for="statusFilter" class="form-label">Filter by Status</label>
-                            <select class="form-select" id="statusFilter">
-                                <option value="all">All Habits</option>
-                                <option value="active">Active Today</option>
-                                <option value="completed">Completed Today</option>
-                                <option value="incomplete">Incomplete Today</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <label for="sortOption" class="form-label">Sort By</label>
-                            <select class="form-select" id="sortOption">
-                                <option value="name">Name</option>
-                                <option value="category">Category</option>
-                                <option value="streak">Streak (High to Low)</option>
-                                <option value="completion">Completion Rate</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Modern Floating Action Button -->
+            <button class="fab tooltip-modern" data-tooltip="Add New Habit" data-bs-toggle="modal" data-bs-target="#addHabitModal">
+                <i class="bi bi-plus"></i>
+            </button>
             
-            <!-- Habits by Category -->
-            <div id="habitsContainer">
+            <!-- Enhanced Habits Grid -->
+            <div class="row">
                 <?php if(empty($habits)): ?>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> You don't have any habits yet. 
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#addHabitModal">Add a habit</a> to get started.
+                    <div class="col-12">
+                        <div class="modern-card text-center py-5 card-animate">
+                            <i class="bi bi-plus-circle display-1 text-muted mb-3"></i>
+                            <h3 class="text-muted">No habits yet</h3>
+                            <p class="text-muted mb-4">Start building healthy habits today!</p>
+                            <button class="btn btn-primary btn-glow" data-bs-toggle="modal" data-bs-target="#addHabitModal">
+                                <i class="bi bi-plus me-2"></i>
+                                Create Your First Habit
+                            </button>
+                        </div>
                     </div>
                 <?php else: ?>
-                    <?php foreach($habits_by_category as $category_id => $category): ?>
-                        <div class="card mb-4 habit-category" data-category-id="<?php echo $category_id; ?>">
-                            <div class="card-header" style="background-color: <?php echo $category['color']; ?>; color: white;">
-                                <h5 class="mb-0"><?php echo $category['name']; ?></h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <?php foreach($category['habits'] as $habit): ?>
-                                        <div class="col-md-4 mb-3 habit-item" 
-                                             data-category-id="<?php echo $habit['category_id']; ?>"
-                                             data-is-completed="<?php echo $habit['is_completed_today'] ? 'completed' : 'incomplete'; ?>"
-                                             data-is-active="<?php echo $habitController->isActiveToday($habit['id']) ? 'active' : 'inactive'; ?>"
-                                             data-streak="<?php echo $habit['streak']; ?>">
-                                            
-                                             <div id="habit-<?php echo $habit['id']; ?>" class="card h-100 habit-card <?php echo $habit['is_completed_today'] ? 'border-success' : 'border-primary'; ?>">
-                                                <div class="card-header d-flex justify-content-between align-items-center <?php echo $habit['is_completed_today'] ? 'bg-success' : 'bg-primary'; ?> text-white">
-                                                    <h5 class="mb-0"><?php echo $habit['title']; ?></h5>
-                                                    <?php if($habit['streak'] > 1): ?>
-                                                        <span class="badge bg-warning text-dark rounded-pill streak-badge" data-bs-toggle="tooltip" title="Current Streak">
-                                                            <?php echo $habit['streak']; ?> 🔥
-                                                        </span>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <div class="card-body">
-                                                    <p class="card-text"><?php echo $habit['description']; ?></p>
-                                                    
-                                                    <div class="d-flex justify-content-between mb-2">
-                                                        <span class="text-muted">
-                                                            <i class="bi bi-calendar-check"></i> 
-                                                            <?php
-                                                            switch($habit['frequency_type']) {
-                                                                case 'daily':
-                                                                    echo 'Daily';
-                                                                    break;
-                                                                case 'weekly':
-                                                                    echo 'Weekly';
-                                                                    break;
-                                                                case 'monthly':
-                                                                    echo 'Monthly';
-                                                                    break;
-                                                                case 'custom':
-                                                                    echo 'Custom';
-                                                                    break;
-                                                            }
-                                                            ?>
-                                                        </span>
-                                                        <span class="text-muted">
-                                                            <i class="bi bi-lightning"></i> +<?php echo $habit['xp_reward']; ?> XP
-                                                        </span>
-                                                    </div>
-                                                    
-                                                    <?php if($habitController->isActiveToday($habit['id'])): ?>
-                                                        <?php if($habit['is_completed_today']): ?>
-                                                            <div class="alert alert-success mb-0">
-                                                                <i class="bi bi-check-circle-fill"></i> Completed today!
-                                                            </div>
-                                                        <?php else: ?>
-                                                            <form action="../controllers/process_habit_completion.php" method="POST" class="habit-completion-form">
-                                                                <input type="hidden" name="habit_id" value="<?php echo $habit['id']; ?>">
-                                                                <button type="submit" class="btn btn-primary w-100">
-                                                                    <i class="bi bi-check"></i> Mark as Complete
-                                                                </button>
-                                                            </form>
-                                                        <?php endif; ?>
-                                                    <?php else: ?>
-                                                        <div class="alert alert-secondary mb-0">
-                                                            <i class="bi bi-info-circle"></i> Not scheduled for today
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <div class="card-footer d-flex justify-content-between">
-                                                    <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#habitDetailsModal<?php echo $habit['id']; ?>">
-                                                        <i class="bi bi-info-circle"></i> Details
-                                                    </a>
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="habitMenu<?php echo $habit['id']; ?>" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            Actions
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="habitMenu<?php echo $habit['id']; ?>">
-                                                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editHabitModal<?php echo $habit['id']; ?>"><i class="bi bi-pencil"></i> Edit</a></li>
-                                                            <li><hr class="dropdown-divider"></li>
-                                                            <li>
-                                                                <form action="../controllers/process_delete_habit.php" method="POST" onsubmit="return confirm('Are you sure you want to delete this habit?');">
-                                                                    <input type="hidden" name="habit_id" value="<?php echo $habit['id']; ?>">
-                                                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash"></i> Delete</button>
-                                                                </form>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Habit Details Modal -->
-                                            <div class="modal fade" id="habitDetailsModal<?php echo $habit['id']; ?>" tabindex="-1" aria-labelledby="habitDetailsModalLabel<?php echo $habit['id']; ?>" aria-hidden="true">
-                                                <div class="modal-dialog modal-lg">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header <?php echo $habit['is_completed_today'] ? 'bg-success' : 'bg-primary'; ?> text-white">
-                                                            <h5 class="modal-title" id="habitDetailsModalLabel<?php echo $habit['id']; ?>"><?php echo $habit['title']; ?> Details</h5>
-                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <?php 
-                                                            $stats = $habitController->getHabitStatistics($habit['id'], $user->id);
-                                                            ?>
-                                                            <div class="row mb-4">
-                                                                <div class="col-md-6">
-                                                                    <h5>Habit Information</h5>
-                                                                    <p><strong>Description:</strong> <?php echo $habit['description']; ?></p>
-                                                                    <p><strong>Category:</strong> <?php echo $habit['category_name']; ?></p>
-                                                                    <p><strong>Frequency:</strong> 
-                                                                        <?php
-                                                                        switch($habit['frequency_type']) {
-                                                                            case 'daily':
-                                                                                echo 'Daily';
-                                                                                break;
-                                                                            case 'weekly':
-                                                                                echo 'Weekly';
-                                                                                break;
-                                                                            case 'monthly':
-                                                                                echo 'Monthly';
-                                                                                break;
-                                                                            case 'custom':
-                                                                                echo 'Custom';
-                                                                                break;
-                                                                        }
-                                                                        ?>
-                                                                    </p>
-                                                                    <p><strong>Start Date:</strong> <?php echo date('F j, Y', strtotime($habit['start_date'])); ?></p>
-                                                                    <?php if($habit['end_date']): ?>
-                                                                        <p><strong>End Date:</strong> <?php echo date('F j, Y', strtotime($habit['end_date'])); ?></p>
-                                                                    <?php endif; ?>
-                                                                    <p><strong>XP Reward:</strong> <?php echo $habit['xp_reward']; ?> XP</p>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <h5>Statistics</h5>
-                                                                    <p><strong>Total Completions:</strong> <?php echo $stats['total_completions']; ?></p>
-                                                                    <p><strong>Current Streak:</strong> <?php echo $stats['current_streak']; ?> days</p>
-                                                                    <p><strong>Consistency Rate:</strong> <?php echo $stats['consistency_percentage']; ?>%</p>
-                                                                    <p><strong>Last Completed:</strong> 
-                                                                        <?php echo $habit['last_completion_date'] ? date('F j, Y', strtotime($habit['last_completion_date'])) : 'Never'; ?>
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            <h5>Completion History</h5>
-                                                            <div class="table-responsive">
-                                                                <table class="table table-striped table-sm">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Date</th>
-                                                                            <th>Status</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        <?php
-                                                                        // Get last 10 days
-                                                                        $end_date = new DateTime();
-                                                                        $start_date = new DateTime();
-                                                                        $start_date->modify('-9 days');
-                                                                        
-                                                                        while($start_date <= $end_date) {
-                                                                            $date = $start_date->format('Y-m-d');
-                                                                            $status = 'Not Scheduled';
-                                                                            
-                                                                            // Check if habit was active on this date
-                                                                            if($habitController->wasActiveOnDate($habit['id'], $date)) {
-                                                                                $status = 'Incomplete';
-                                                                                
-                                                                                // Check if habit was completed on this date
-                                                                                if($habitController->wasCompletedOnDate($habit['id'], $date)) {
-                                                                                    $status = 'Completed';
-                                                                                }
-                                                                            }
-                                                                            
-                                                                            echo '<tr>';
-                                                                            echo '<td>' . $start_date->format('M j, Y') . '</td>';
-                                                                            echo '<td>';
-                                                                            
-                                                                            if($status === 'Completed') {
-                                                                                echo '<span class="badge bg-success">Completed</span>';
-                                                                            } elseif($status === 'Incomplete') {
-                                                                                echo '<span class="badge bg-danger">Missed</span>';
-                                                                            } else {
-                                                                                echo '<span class="badge bg-secondary">Not Scheduled</span>';
-                                                                            }
-                                                                            
-                                                                            echo '</td>';
-                                                                            echo '</tr>';
-                                                                            
-                                                                            $start_date->modify('+1 day');
-                                                                        }
-                                                                        ?>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Edit Habit Modal -->
-                                            <div class="modal fade" id="editHabitModal<?php echo $habit['id']; ?>" tabindex="-1" aria-labelledby="editHabitModalLabel<?php echo $habit['id']; ?>" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header bg-primary text-white">
-                                                            <h5 class="modal-title" id="editHabitModalLabel<?php echo $habit['id']; ?>">Edit Habit</h5>
-                                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <form action="../controllers/process_edit_habit.php" method="POST">
-                                                            <input type="hidden" name="habit_id" value="<?php echo $habit['id']; ?>">
-                                                            
-                                                            <div class="modal-body">
-                                                                <div class="mb-3">
-                                                                    <label for="habitTitle<?php echo $habit['id']; ?>" class="form-label">Habit Title</label>
-                                                                    <input type="text" class="form-control" id="habitTitle<?php echo $habit['id']; ?>" name="title" value="<?php echo $habit['title']; ?>" required>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label for="habitDescription<?php echo $habit['id']; ?>" class="form-label">Description</label>
-                                                                    <textarea class="form-control" id="habitDescription<?php echo $habit['id']; ?>" name="description" rows="3"><?php echo $habit['description']; ?></textarea>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label for="habitCategory<?php echo $habit['id']; ?>" class="form-label">Category</label>
-                                                                    <select class="form-select" id="habitCategory<?php echo $habit['id']; ?>" name="category_id">
-                                                                        <?php foreach($categories as $category): ?>
-                                                                            <option value="<?php echo $category['id']; ?>" <?php echo $habit['category_id'] == $category['id'] ? 'selected' : ''; ?>>
-                                                                                <?php echo $category['name']; ?>
-                                                                            </option>
-                                                                        <?php endforeach; ?>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label for="habitFrequency<?php echo $habit['id']; ?>" class="form-label">Frequency</label>
-                                                                    <select class="form-select" id="habitFrequency<?php echo $habit['id']; ?>" name="frequency_type">
-                                                                        <option value="daily" <?php echo $habit['frequency_type'] === 'daily' ? 'selected' : ''; ?>>Daily</option>
-                                                                        <option value="weekly" <?php echo $habit['frequency_type'] === 'weekly' ? 'selected' : ''; ?>>Weekly</option>
-                                                                        <option value="monthly" <?php echo $habit['frequency_type'] === 'monthly' ? 'selected' : ''; ?>>Monthly</option>
-                                                                        <option value="custom" <?php echo $habit['frequency_type'] === 'custom' ? 'selected' : ''; ?>>Custom</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label for="habitXP<?php echo $habit['id']; ?>" class="form-label">XP Reward</label>
-                                                                    <div class="input-group">
-                                                                        <input type="number" class="form-control" id="habitXP<?php echo $habit['id']; ?>" name="xp_reward" min="1" value="<?php echo $habit['xp_reward']; ?>">
-                                                                        <span class="input-group-text">XP</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
+                    <?php foreach($habits as $index => $habit): ?>
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="habit-card-modern <?= $habit['completed_today'] ? 'completed' : '' ?>" 
+                                 style="animation-delay: <?= $index * 0.1 ?>s">
+                                
+                                <!-- Habit Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-1"><?= htmlspecialchars($habit['name']) ?></h5>
+                                        <small class="text-muted">
+                                            <i class="bi bi-tag me-1"></i>
+                                            <?= htmlspecialchars($habit['category_name'] ?? 'Uncategorized') ?>
+                                        </small>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" onclick="editHabit(<?= $habit['id'] ?>)">
+                                                <i class="bi bi-pencil me-2"></i>Edit
+                                            </a></li>
+                                            <li><a class="dropdown-item text-danger" href="#" onclick="deleteHabit(<?= $habit['id'] ?>)">
+                                                <i class="bi bi-trash me-2"></i>Delete
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <!-- Habit Description -->
+                                <?php if(!empty($habit['description'])): ?>
+                                    <p class="card-text text-muted small mb-3">
+                                        <?= htmlspecialchars($habit['description']) ?>
+                                    </p>
+                                <?php endif; ?>
+                                
+                                <!-- Progress Bar -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small text-muted">Progress</span>
+                                        <span class="small fw-bold"><?= $habit['completion_rate'] ?>%</span>
+                                    </div>
+                                    <div class="progress progress-modern">
+                                        <div class="progress-bar bg-gradient" 
+                                             role="progressbar" 
+                                             style="width: <?= $habit['completion_rate'] ?>%"
+                                             aria-valuenow="<?= $habit['completion_rate'] ?>" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
                                         </div>
-                                    <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                
+                                <!-- Habit Stats -->
+                                <div class="row text-center mb-3">
+                                    <div class="col-4">
+                                        <div class="small text-muted">Streak</div>
+                                        <div class="fw-bold text-warning">
+                                            <i class="bi bi-fire"></i>
+                                            <?= $habit['current_streak'] ?? 0 ?>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="small text-muted">Best</div>
+                                        <div class="fw-bold text-success">
+                                            <i class="bi bi-trophy"></i>
+                                            <?= $habit['best_streak'] ?? 0 ?>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="small text-muted">Total</div>
+                                        <div class="fw-bold text-info">
+                                            <i class="bi bi-check-circle"></i>
+                                            <?= $habit['total_completions'] ?? 0 ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="d-grid gap-2">
+                                    <?php if(!$habit['completed_today']): ?>
+                                        <form class="habit-completion-form" action="/controllers/process_habit_completion.php" method="POST">
+                                            <input type="hidden" name="habit_id" value="<?= $habit['id'] ?>">
+                                            <button type="submit" class="btn btn-success habit-complete-btn btn-glow w-100">
+                                                <i class="bi bi-check-circle me-2"></i>
+                                                Mark Complete
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <button class="btn btn-outline-success w-100" disabled>
+                                            <i class="bi bi-check-circle-fill me-2"></i>
+                                            Completed Today!
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <!-- Habit Frequency Info -->
+                                <div class="mt-3 pt-3 border-top">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-event me-1"></i>
+                                        <?= ucfirst($habit['frequency_type']) ?> 
+                                        <?php if($habit['frequency_type'] === 'weekly'): ?>
+                                            (<?= $habit['weekly_days'] ?? 'All days' ?>)
+                                        <?php elseif($habit['frequency_type'] === 'custom'): ?>
+                                            (Every <?= $habit['custom_frequency'] ?> days)
+                                        <?php endif; ?>
+                                    </small>
                                 </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
-        </main>
-    </div>
-</div>
 
-<!-- Add Habit Modal -->
-<div class="modal fade" id="addHabitModal" tabindex="-1" aria-labelledby="addHabitModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="addHabitModalLabel">Add New Habit</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="../controllers/process_add_habit.php" method="POST">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="habitTitle" class="form-label">Habit Title</label>
-                        <input type="text" class="form-control" id="habitTitle" name="title" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="habitDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="habitDescription" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="habitCategory" class="form-label">Category</label>
-                        <select class="form-select" id="habitCategory" name="category_id">
-                            <?php foreach($categories as $category): ?>
-                                <option value="<?php echo $category['id']; ?>"><?php echo $category['name']; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="habitFrequency" class="form-label">Frequency</label>
-                        <select class="form-select" id="habitFrequency" name="frequency_type">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="custom">Custom</option>
-                        </select>
-                    </div>
-                    <div class="mb-3 frequency-options" id="weeklyOptions" style="display: none;">
-                        <label class="form-label">Days of Week</label>
-                        <div class="btn-group d-flex flex-wrap" role="group">
-                            <?php
-                            $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                            foreach($days as $index => $day) {
-                                echo '<input type="checkbox" class="btn-check" id="day' . $index . '" name="frequency_value[]" value="' . $index . '">';
-                                echo '<label class="btn btn-outline-primary m-1" for="day' . $index . '">' . $day . '</label>';
-                            }
-                            ?>
-                        </div>
-                    </div>
-                    <div class="mb-3 frequency-options" id="monthlyOptions" style="display: none;">
-                        <label for="monthlyDay" class="form-label">Day of Month</label>
-                        <select class="form-select" id="monthlyDay" name="monthly_day">
-                            <?php
-                            for($i = 1; $i <= 31; $i++) {
-                                echo '<option value="' . $i . '">' . $i . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="mb-3 frequency-options" id="customOptions" style="display: none;">
-                        <label for="customDays" class="form-label">Repeat every X days</label>
-                        <input type="number" class="form-control" id="customDays" name="custom_days" min="1" value="1">
-                    </div>
-                    <div class="mb-3">
-                        <label for="habitStartDate" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="habitStartDate" name="start_date" value="<?php echo date('Y-m-d'); ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="habitEndDate" class="form-label">End Date (Optional)</label>
-                        <input type="date" class="form-control" id="habitEndDate" name="end_date">
-                    </div>
-                    <div class="mb-3">
-                        <label for="habitXP" class="form-label">XP Reward</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control" id="habitXP" name="xp_reward" min="1" value="10">
-                            <span class="input-group-text">XP</span>
-                        </div>
-                        <div class="form-text">XP earned when completing this habit</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Habit</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<style>
+/* Enhanced Habits Page Styles */
+.habit-card-modern {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+    animation: slide-up 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.habit-card-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+}
+
+.habit-card-modern:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.habit-card-modern.completed {
+    background: linear-gradient(135deg, rgba(75, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+    border-color: rgba(75, 172, 254, 0.3);
+}
+
+.habit-card-modern.completed::before {
+    background: var(--success-gradient);
+}
+
+.habit-card-modern.completed::after {
+    content: '✓';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 24px;
+    height: 24px;
+    background: var(--success-gradient);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Habit statistics styling */
+.habit-card-modern .row.text-center > div {
+    padding: 0.5rem;
+}
+
+.habit-card-modern .row.text-center > div:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced button styling */
+.habit-complete-btn {
+    background: var(--success-gradient);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.habit-complete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(75, 172, 254, 0.3);
+    color: white;
+}
+
+/* Empty state styling */
+.modern-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition-smooth);
+}
+
+.modern-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .habit-card-modern {
+        margin-bottom: 1rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+</style>
 
 <script>
-    // Initialize Bootstrap tooltips
-    document.addEventListener('DOMContentLoaded', function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced habit card animations
+    const habitCards = document.querySelectorAll('.habit-card-modern');
+    habitCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        
+        // Add hover effect for better interactivity
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
         });
         
-        // Frequency options toggle
-        const frequencySelect = document.getElementById('habitFrequency');
-        if(frequencySelect) {
-            frequencySelect.addEventListener('change', function() {
-                const frequencyType = this.value;
-                
-                // Hide all options first
-                document.querySelectorAll('.frequency-options').forEach(el => {
-                    el.style.display = 'none';
-                });
-                
-                // Show the selected option
-                if(frequencyType === 'weekly') {
-                    document.getElementById('weeklyOptions').style.display = 'block';
-                } else if(frequencyType === 'monthly') {
-                    document.getElementById('monthlyOptions').style.display = 'block';
-                } else if(frequencyType === 'custom') {
-                    document.getElementById('customOptions').style.display = 'block';
-                }
-            });
-        }
-        
-        // Filtering and sorting logic
-        const categoryFilter = document.getElementById('categoryFilter');
-        const statusFilter = document.getElementById('statusFilter');
-        const sortOption = document.getElementById('sortOption');
-        
-        function filterHabits() {
-            const categoryValue = categoryFilter.value;
-            const statusValue = statusFilter.value;
-            
-            // Get all habit items
-            const habitItems = document.querySelectorAll('.habit-item');
-            
-            habitItems.forEach(item => {
-                let showItem = true;
-                
-                // Category filtering
-                if(categoryValue !== 'all' && item.getAttribute('data-category-id') !== categoryValue) {
-                    showItem = false;
-                }
-                
-                // Status filtering
-                if(statusValue !== 'all') {
-                    if(statusValue === 'active' && item.getAttribute('data-is-active') !== 'active') {
-                        showItem = false;
-                    } else if(statusValue === 'completed' && item.getAttribute('data-is-completed') !== 'completed') {
-                        showItem = false;
-                    } else if(statusValue === 'incomplete' && (item.getAttribute('data-is-completed') !== 'incomplete' || item.getAttribute('data-is-active') !== 'active')) {
-                        showItem = false;
-                    }
-                }
-                
-                // Show/hide the item
-                item.style.display = showItem ? 'block' : 'none';
-            });
-            
-            // Check if categories are empty and hide them
-            document.querySelectorAll('.habit-category').forEach(category => {
-                const visibleItems = category.querySelectorAll('.habit-item[style="display: block;"]');
-                category.style.display = visibleItems.length > 0 ? 'block' : 'none';
-            });
-        }
-        
-        function sortHabits() {
-            const sortValue = sortOption.value;
-            const habitsContainer = document.getElementById('habitsContainer');
-            const categories = Array.from(document.querySelectorAll('.habit-category'));
-            
-            // Sort categories
-            if(sortValue === 'category') {
-                categories.sort((a, b) => {
-                    const nameA = a.querySelector('.card-header h5').textContent;
-                    const nameB = b.querySelector('.card-header h5').textContent;
-                    return nameA.localeCompare(nameB);
-                });
-            }
-            
-            // Sort habits within each category
-            categories.forEach(category => {
-                const items = Array.from(category.querySelectorAll('.habit-item'));
-                
-                if(sortValue === 'name') {
-                    items.sort((a, b) => {
-                        const nameA = a.querySelector('.card-header h5').textContent;
-                        const nameB = b.querySelector('.card-header h5').textContent;
-                        return nameA.localeCompare(nameB);
-                    });
-                } else if(sortValue === 'streak') {
-                    items.sort((a, b) => {
-                        const streakA = parseInt(a.getAttribute('data-streak')) || 0;
-                        const streakB = parseInt(b.getAttribute('data-streak')) || 0;
-                        return streakB - streakA; // High to low
-                    });
-                }
-                
-                // Reappend sorted items
-                const itemsContainer = category.querySelector('.row');
-                items.forEach(item => itemsContainer.appendChild(item));
-            });
-            
-            // Reappend sorted categories
-            categories.forEach(category => habitsContainer.appendChild(category));
-        }
-        
-        // Add event listeners
-        if(categoryFilter && statusFilter && sortOption) {
-            categoryFilter.addEventListener('change', filterHabits);
-            statusFilter.addEventListener('change', filterHabits);
-            sortOption.addEventListener('change', sortHabits);
-        }
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
     });
+    
+    // Enhanced completion animation
+    const completionForms = document.querySelectorAll('.habit-completion-form');
+    completionForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const button = this.querySelector('.habit-complete-btn');
+            const card = this.closest('.habit-card-modern');
+            
+            // Animation sequence
+            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Completing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                card.classList.add('completed');
+                button.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Completed!';
+                
+                // Create celebration effect
+                const celebration = document.createElement('div');
+                celebration.innerHTML = '🎉';
+                celebration.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    font-size: 2rem;
+                    pointer-events: none;
+                    animation: celebrate 1s ease-out forwards;
+                `;
+                card.appendChild(celebration);
+                
+                setTimeout(() => celebration.remove(), 1000);
+                
+                // Update UI after delay
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            }, 1500);
+        });
+    });
+});
+
+// Habit management functions
+function editHabit(habitId) {
+    // Implementation for edit modal
+    console.log('Edit habit:', habitId);
+}
+
+function deleteHabit(habitId) {
+    if (confirm('Are you sure you want to delete this habit?')) {
+        // Implementation for delete
+        console.log('Delete habit:', habitId);
+    }
+}
 </script>
 
 <?php

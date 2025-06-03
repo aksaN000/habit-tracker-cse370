@@ -133,18 +133,6 @@ include '../views/partials/header.php';
                             }
                             ?>
                         </p>
-                        <div class="mt-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-white">Level <?php echo $user->level; ?></span>
-                                <span class="text-white">Level <?php echo $user->level + 1; ?></span>
-                            </div>
-                            <div class="xp-progress">
-                                <div class="progress-bar" role="progressbar" style="width: <?php echo $xpProgressPercentage; ?>%;" aria-valuenow="<?php echo $xpProgressPercentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="text-white-50 mt-1">
-                                <small><?php echo $xpForCurrentLevel; ?> / <?php echo $xpNeededForNextLevel; ?> XP to next level</small>
-                            </div>
-                        </div>
                     </div>
                     <div class="col-md-4 text-center">
                         <div class="level-badge">
@@ -157,112 +145,98 @@ include '../views/partials/header.php';
                 </div>
             </div>
             
-            <!-- Quick Stats Row -->
+            <!-- Modern Floating Action Button for Quick Habit Addition -->
+            <button class="fab tooltip-modern" data-tooltip="Add New Habit" onclick="document.getElementById('addHabitModal').click()">
+                <i class="bi bi-plus"></i>
+            </button>
+            
+            <!-- Quick Stats Cards with Modern Animation -->
+            <div class="container-fluid mt-4">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card will-change-transform">
+                            <div class="stat-number"><?= count($todayHabits) ?></div>
+                            <div class="stat-label">Today's Habits</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card will-change-transform">
+                            <div class="stat-number"><?= $user->level ?></div>
+                            <div class="stat-label">Current Level</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card will-change-transform">
+                            <div class="stat-number"><?= $user->current_xp ?></div>
+                            <div class="stat-label">Total XP</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card will-change-transform">
+                            <div class="stat-number"><?= count($activeChallenges) ?></div>
+                            <div class="stat-label">Active Challenges</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Messages with Modern Styling -->
+            <?php if(isset($_SESSION['success'])): ?>
+                <div class="alert alert-success alert-modern card-animate">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <?= $_SESSION['success'] ?>
+                </div>
+                <?php unset($_SESSION['success']); ?>
+            <?php endif; ?>
+
+            <?php if(isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger alert-modern card-animate">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <?= $_SESSION['error'] ?>
+                </div>
+                <?php unset($_SESSION['error']); ?>
+            <?php endif; ?>
+
+            <!-- Enhanced Progress Section -->
             <div class="row mb-4">
-                <!-- Habits Stats -->
-                <div class="col-md-3 mb-3">
-                    <div class="card h-100 border-primary">
-                        <div class="card-body text-center">
-                            <i class="bi bi-check-circle text-primary fs-1 mb-3"></i>
-                            <h5 class="card-title">Today's Habits</h5>
-                            <p class="display-4 mb-1"><?php echo count($todayHabits); ?></p>
-                            <p class="text-muted">
-                                <?php
-                                $completed_count = 0;
-                                foreach($todayHabits as $habit) {
-                                    if($habit['is_completed']) {
-                                        $completed_count++;
-                                    }
-                                }
-                                echo $completed_count . ' completed';
-                                ?>
-                            </p>
-                            <a href="habits.php" class="btn btn-sm btn-outline-primary mt-2">View All Habits</a>
+                <div class="col-12">
+                    <div class="card modern-card will-change-transform">
+                        <div class="card-header bg-gradient text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-trophy me-2"></i>
+                                Your Progress
+                            </h5>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Goals Stats -->
-                <div class="col-md-3 mb-3">
-                    <div class="card h-100 border-warning">
-                        <div class="card-body text-center">
-                            <i class="bi bi-trophy text-warning fs-1 mb-3"></i>
-                            <h5 class="card-title">Active Goals</h5>
-                            <p class="display-4 mb-1"><?php echo count($upcomingGoals); ?></p>
-                            <p class="text-muted">
-                                <?php
-                                $nearest_goal = null;
-                                $nearest_days = PHP_INT_MAX;
-                                
-                                foreach($upcomingGoals as $goal) {
-                                    if($goal['days_remaining'] < $nearest_days) {
-                                        $nearest_days = $goal['days_remaining'];
-                                        $nearest_goal = $goal;
-                                    }
-                                }
-                                
-                                if($nearest_goal) {
-                                    echo 'Next due: ' . formatDate($nearest_goal['end_date']);
-                                } else {
-                                    echo 'No upcoming goals';
-                                }
-                                ?>
-                            </p>
-                            <a href="goals.php" class="btn btn-sm btn-outline-warning mt-2">View All Goals</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Challenges Stats -->
-                <div class="col-md-3 mb-3">
-                    <div class="card h-100 border-danger">
-                        <div class="card-body text-center">
-                            <i class="bi bi-people text-danger fs-1 mb-3"></i>
-                            <h5 class="card-title">Active Challenges</h5>
-                            <p class="display-4 mb-1"><?php echo count($activeChallenges); ?></p>
-                            <p class="text-muted">
-                                <?php
-                                $total_progress = 0;
-                                foreach($activeChallenges as $challenge) {
-                                    $total_progress += $challenge['progress_percentage'];
-                                }
-                                
-                                $avg_progress = count($activeChallenges) > 0 ? round($total_progress / count($activeChallenges)) : 0;
-                                echo 'Avg. progress: ' . $avg_progress . '%';
-                                ?>
-                            </p>
-                            <a href="challenges.php" class="btn btn-sm btn-outline-danger mt-2">View Challenges</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Journal Stats -->
-                <div class="col-md-3 mb-3">
-                    <div class="card h-100 border-info">
-                        <div class="card-body text-center">
-                            <i class="bi bi-journal-text text-info fs-1 mb-3"></i>
-                            <h5 class="card-title">Journal Activity</h5>
-                            <?php
-                            // Get journal stats from database
-                            $query = "SELECT COUNT(*) as entry_count, MAX(entry_date) as last_entry 
-                                     FROM journal_entries 
-                                     WHERE user_id = :user_id";
-                            $stmt = $GLOBALS['conn']->prepare($query);
-                            $stmt->bindParam(':user_id', $user->id);
-                            $stmt->execute();
-                            $journal_stats = $stmt->fetch(PDO::FETCH_ASSOC);
-                            ?>
-                            <p class="display-4 mb-1"><?php echo $journal_stats['entry_count']; ?></p>
-                            <p class="text-muted">
-                                <?php
-                                if($journal_stats['last_entry']) {
-                                    echo 'Last entry: ' . formatDate($journal_stats['last_entry']);
-                                } else {
-                                    echo 'No journal entries yet';
-                                }
-                                ?>
-                            </p>
-                            <a href="journal.php" class="btn btn-sm btn-outline-info mt-2">Go to Journal</a>
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="me-3">Level <?= $user->level ?></span>
+                                        <div class="flex-grow-1">
+                                            <div class="progress progress-modern">
+                                                <div class="progress-bar bg-gradient" 
+                                                     role="progressbar" 
+                                                     style="width: <?= $xpProgressPercentage ?>%"
+                                                     aria-valuenow="<?= $xpProgressPercentage ?>" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="ms-3">Level <?= $user->level + 1 ?></span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <?= $xpForCurrentLevel ?> / <?= $nextLevelXP ?> XP 
+                                        (<?= ($nextLevelXP - $xpForCurrentLevel) ?> XP to next level)
+                                    </small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="streak-counter">
+                                        <i class="bi bi-fire"></i>
+                                        <span id="streak-count">7</span> day streak
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -586,6 +560,89 @@ include '../views/partials/header.php';
         </div>
     </div>
 </div>
+
+<style>
+/* Additional dashboard-specific modern styles */
+.modern-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition-smooth);
+}
+
+.modern-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+.bg-gradient {
+    background: var(--primary-gradient) !important;
+}
+
+/* Notification pulse animation */
+.notification-pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Quick action buttons */
+.quick-action-btn {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    color: var(--primary-color);
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    transition: var(--transition-smooth);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quick-action-btn:hover {
+    background: var(--primary-gradient);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Enhanced habit cards */
+.habit-card-modern {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.habit-card-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+}
+
+.habit-card-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-xl);
+}
+
+.habit-card-modern.completed {
+    background: linear-gradient(135deg, rgba(75, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+    border-color: rgba(75, 172, 254, 0.3);
+}
+
+.habit-card-modern.completed::before {
+    background: var(--success-gradient);
+}
+</style>
 
 <script>
     // Initialize tooltips

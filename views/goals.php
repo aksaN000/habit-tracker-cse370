@@ -316,14 +316,11 @@ include '../views/partials/header.php';
                     <button type="submit" class="btn btn-primary">Add Goal</button>
                 </div>
             </form>
-        </div>    </div>
+        </div>
+    </div>
 </div>
 
 <?php
-// Include modals
-include __DIR__ . '/partials/add_habit_modal.php';
-include __DIR__ . '/partials/add_goal_modal.php';
-
 // Include footer
 include __DIR__ . '/partials/footer.php';
 

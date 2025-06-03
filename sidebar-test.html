@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Scroll Test - Habit Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+        /* Test styles to verify scrolling */
+        .test-marker {
+            background-color: #ffeb3b;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .sidebar-content-test {
+            height: 150vh; /* Make content longer than viewport to force scrolling */
+        }
+    </style>
+</head>
+<body>
+    <!-- Test navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <button class="btn btn-outline-light d-md-none me-2" type="button" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <a class="navbar-brand" href="#">Habit Tracker - Sidebar Test</a>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="sidebar-sticky pt-3">
+                    <div class="test-marker">TOP OF SIDEBAR</div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-check-circle"></i> My Habits
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-trophy"></i> Goals
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-people"></i> Challenges
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-people"></i> Community
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-journal-text"></i> Journal
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-graph-up"></i> Analytics
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Quick Actions</span>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-plus-circle"></i> Add New Habit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-plus-circle"></i> Add New Goal
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-plus-circle"></i> Join Challenge
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-plus-circle"></i> New Journal Entry
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="test-marker">PROGRESS SECTION</div>
+                    
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Your Progress</span>
+                    </h6>
+                    <div class="px-3 py-2">
+                        <div class="mb-2">
+                            <small class="text-muted">Level 5</small>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <small class="text-muted">650 / 1000 XP to Level 6</small>
+                    </div>
+                    
+                    <div class="test-marker">AFTER PROGRESS BAR - SHOULD BE VISIBLE</div>
+                    
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Account</span>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-person"></i> Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-award"></i> Achievements
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-gear"></i> Settings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="test-marker">BOTTOM OF SIDEBAR - THIS SHOULD BE SCROLLABLE</div>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Sidebar Scroll Test</h1>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h4>Desktop Sidebar Scrolling Test</h4>
+                    <p>This page tests the desktop sidebar scrolling functionality:</p>
+                    <ul>
+                        <li><strong>Desktop (≥768px):</strong> Sidebar should be fixed and scrollable vertically if content exceeds viewport height</li>
+                        <li><strong>Mobile (&lt;768px):</strong> Sidebar should slide in/out when hamburger button is clicked</li>
+                    </ul>
+                    <p><strong>Test Instructions:</strong></p>
+                    <ol>
+                        <li>On desktop: Check if you can scroll within the sidebar to see "BOTTOM OF SIDEBAR" marker</li>
+                        <li>On mobile: Click the hamburger menu to test slide-out functionality</li>
+                        <li>Verify that the progress bar and Account section are both accessible</li>
+                    </ol>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Test Status</h5>
+                        <p>Use your browser's developer tools to test different screen sizes.</p>
+                        <p>The sidebar should automatically handle scrolling on desktop and slide-out behavior on mobile.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

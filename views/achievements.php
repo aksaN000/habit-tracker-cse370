@@ -325,15 +325,12 @@ include '../views/partials/header.php';
     font-weight: bold;
     display: flex;
     align-items: center;
-    justify-content: center;    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 </style>
 
 <?php
-// Include modals
-include __DIR__ . '/partials/add_habit_modal.php';
-include __DIR__ . '/partials/add_goal_modal.php';
-
 // Include footer
 include __DIR__ . '/../views/partials/footer.php';
 ?>

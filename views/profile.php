@@ -48,18 +48,6 @@ $level_info = getLevelInfo($user->level, $GLOBALS['conn']);
 $next_level_xp = getNextLevelXP($user->level, $GLOBALS['conn']);
 $xp_progress = calculateXPProgress($user->current_xp, $user->level, $GLOBALS['conn']);
 
-// Calculate proper XP display for profile level bar
-$isMaxLevel = ($next_level_xp === false || $user->level >= 5);
-if ($isMaxLevel) {
-    $xpProgressPercentage = 100;
-    $xpForCurrentLevel = $user->current_xp - $level_info['xp_required'];
-    $xpNeededForNextLevel = $xpForCurrentLevel; // For max level display
-} else {
-    $xpProgressPercentage = $xp_progress;
-    $xpForCurrentLevel = $user->current_xp - $level_info['xp_required'];
-    $xpNeededForNextLevel = $next_level_xp - $level_info['xp_required'];
-}
-
 // Process profile update
 $update_message = '';
 $update_success = false;
@@ -71,19 +59,13 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     
-    // Create data array including all form data and file upload
-    $postData = $_POST;
+    // Update profile logic
+    $result = $authController->updateProfile($user->id, $username, $email, $current_password, $new_password, $confirm_password);
     
-    // Update profile logic with proper method call
-    $result = $authController->editProfile($user->id, $postData);    
     $update_success = $result['success'];
     $update_message = $result['message'];
     
     if($update_success) {
-        // Update session if profile picture was uploaded
-        if(isset($result['profile_picture']) && $result['profile_picture']) {
-            $_SESSION['profile_picture'] = $result['profile_picture'];
-        }
         // Refresh user data
         $user = $authController->getLoggedInUser();
     }
@@ -102,20 +84,12 @@ include '../views/partials/header.php';
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <!-- Profile Header -->
             <div class="profile-header text-center mb-4">
-                <div class="container">                    <div class="mb-3">
-                        <?php if(!empty($user->profile_picture)): ?>
-                            <img src="../assets/uploads/profile_pictures/<?php echo $user->profile_picture; ?>" 
-                                 alt="Profile Avatar" 
-                                 class="profile-avatar">
-                        <?php else: ?>
-                            <?php 
-                            $gradientClass = getProfileGradientClass($user->username); 
-                            $initials = getProfileInitials($user->username);
-                            ?>
-                            <div class="profile-avatar profile-pic-default <?php echo $gradientClass; ?>" title="<?php echo htmlspecialchars($user->username); ?>'s profile">
-                                <?php echo htmlspecialchars($initials); ?>
-                            </div>
-                        <?php endif; ?>
+                <div class="container">
+                    <div class="mb-3">
+                        <img src="<?php echo !empty($user->profile_picture) ? '../assets/uploads/profile_pictures/' . $user->profile_picture : 'https://ui-avatars.com/api/?name=' . urlencode($user->username) . '&background=random&size=150'; ?>" 
+                            alt="Profile Avatar" 
+                            class="profile-avatar">
+                    
                     </div>
                     <h1 class="display-5 fw-bold"><?php echo $user->username; ?></h1>
                     <p class="lead">Member since <?php echo formatDate($user->created_at, 'F j, Y'); ?></p>
@@ -123,18 +97,13 @@ include '../views/partials/header.php';
                         <div class="me-3">
                             <span class="fw-bold">Level <?php echo $user->level; ?></span>
                             <span class="ms-1 badge bg-warning text-dark"><?php echo $level_info['title']; ?></span>
-                        </div>                        <div style="width: 200px;">
+                        </div>
+                        <div style="width: 200px;">
                             <div class="progress">
-                                <div class="progress-bar bg-success <?php echo $isMaxLevel ? 'progress-bar-animated' : ''; ?>" role="progressbar" style="width: <?php echo $xpProgressPercentage; ?>%;" aria-valuenow="<?php echo $xpProgressPercentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>                            <small class="text-light">
-                                <?php if($isMaxLevel): ?>
-                                    Max Level Reached! 🏆
-                                <?php else: ?>
-                                    <?php 
-                                    $xpNeededToNext = $next_level_xp - $user->current_xp;
-                                    ?>
-                                    <?php echo $user->current_xp; ?> / <?php echo $next_level_xp; ?> Total XP (<?php echo $xpNeededToNext; ?> XP needed for next level)
-                                <?php endif; ?>
+                                <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $xp_progress; ?>%;" aria-valuenow="<?php echo $xp_progress; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-light">
+                                <?php echo ($user->current_xp - $level_info['xp_required']); ?> / <?php echo ($next_level_xp - $level_info['xp_required']); ?> XP to Level <?php echo $user->level + 1; ?>
                             </small>
                         </div>
                     </div>
@@ -390,25 +359,13 @@ include '../views/partials/header.php';
                         <div class="card-body">
                             <form action="profile.php" method="POST" enctype="multipart/form-data">
                                 <input type="hidden" name="update_profile" value="1">
-                                  <div class="mb-4 text-center">
-                                    <?php if(!empty($user->profile_picture)): ?>
-                                        <img src="../assets/uploads/profile_pictures/<?php echo $user->profile_picture; ?>" 
-                                             alt="Profile Avatar" 
-                                             class="profile-avatar mb-3" 
-                                             id="profile-preview"
-                                             style="width: 150px; height: 150px; max-width: 150px; max-height: 150px; border-radius: 50%; border: 5px solid white; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); object-fit: cover;">
-                                    <?php else: ?>
-                                        <?php 
-                                        $gradientClass = getProfileGradientClass($user->username); 
-                                        $initials = getProfileInitials($user->username);
-                                        ?>
-                                        <div class="profile-avatar profile-pic-default <?php echo $gradientClass; ?> mb-3" 
-                                             id="profile-preview"
-                                             title="<?php echo htmlspecialchars($user->username); ?>'s profile"
-                                             style="width: 150px; height: 150px; max-width: 150px; max-height: 150px; border-radius: 50%; border: 5px solid white; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); font-size: 3rem;">
-                                            <?php echo htmlspecialchars($initials); ?>
-                                        </div>
-                                    <?php endif; ?>
+                                
+                                <div class="mb-4 text-center">
+                                    <img src="<?php echo !empty($user->profile_picture) ? '../assets/uploads/profile_pictures/' . $user->profile_picture : 'https://ui-avatars.com/api/?name=' . urlencode($user->username) . '&background=random&size=150'; ?>" 
+                                        alt="Profile Avatar" 
+                                        class="profile-avatar mb-3" 
+                                        id="profile-preview"
+                                        style="width: 150px; height: 150px; border-radius: 50%; border: 5px solid white; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
                                     
                                     <div class="mb-3">
                                         <label for="profile_picture" class="form-label">Upload Profile Picture</label>
@@ -467,7 +424,9 @@ include '../views/partials/header.php';
                             </form>
                         </div>
                     </div>
-                </div>                <script>
+                </div>
+
+                <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const profileInput = document.getElementById('profile_picture');
                     const profilePreview = document.getElementById('profile-preview');
@@ -478,16 +437,7 @@ include '../views/partials/header.php';
                                 const reader = new FileReader();
                                 
                                 reader.onload = function(e) {
-                                    // Replace the current preview (whether it's an img or div) with a new img
-                                    const newImg = document.createElement('img');
-                                    newImg.src = e.target.result;
-                                    newImg.alt = 'Profile Preview';
-                                    newImg.className = 'profile-avatar mb-3';
-                                    newImg.style.cssText = 'width: 150px; height: 150px; max-width: 150px; max-height: 150px; border-radius: 50%; border: 5px solid white; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); object-fit: cover;';
-                                    newImg.id = 'profile-preview';
-                                    
-                                    // Replace the preview element
-                                    profilePreview.parentNode.replaceChild(newImg, profilePreview);
+                                    profilePreview.src = e.target.result;
                                 }
                                 
                                 reader.readAsDataURL(this.files[0]);

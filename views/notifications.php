@@ -189,15 +189,12 @@ include '../views/partials/header.php';
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
-            </div>        </main>
+            </div>
+        </main>
     </div>
 </div>
 
 <?php
-// Include modals
-include __DIR__ . '/partials/add_habit_modal.php';
-include __DIR__ . '/partials/add_goal_modal.php';
-
 // Include footer
 include __DIR__ . '/partials/footer.php';
 

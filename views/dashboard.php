@@ -43,19 +43,13 @@ $levelInfo = getLevelInfo($user->level, $GLOBALS['conn']);
 
 // Get next level info
 $nextLevelXP = getNextLevelXP($user->level, $GLOBALS['conn']);
-$isMaxLevel = ($nextLevelXP === false || $user->level >= 5);
 
 // Calculate XP progress percentage
-if ($isMaxLevel) {
-    $xpProgressPercentage = 100;
-    $xpForCurrentLevel = $user->current_xp - $levelInfo['xp_required'];
-    $xpNeededForNextLevel = $xpForCurrentLevel; // For max level, show current level XP as the "needed"
-} else {
-    $xpProgressPercentage = calculateXPProgress($user->current_xp, $user->level, $GLOBALS['conn']);
-    // Calculate XP for current level and needed for next level
-    $xpForCurrentLevel = $user->current_xp - $levelInfo['xp_required'];
-    $xpNeededForNextLevel = $nextLevelXP - $levelInfo['xp_required'];
-}
+$xpProgressPercentage = calculateXPProgress($user->current_xp, $user->level, $GLOBALS['conn']);
+
+// Calculate XP for current level and needed for next level
+$xpForCurrentLevel = $user->current_xp - $levelInfo['xp_required'];
+$xpNeededForNextLevel = $nextLevelXP - $levelInfo['xp_required'];
 
 // Include header
 include '../views/partials/header.php';
@@ -67,17 +61,16 @@ include '../views/partials/header.php';
         <?php include '../views/partials/sidebar.php'; ?>
         
         <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 class="h2">Dashboard</h1>
                 <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addHabitModal">
-                            <i class="bi bi-plus"></i> Add Habit
-                        </button>
-                        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addGoalModal">
-                            <i class="bi bi-plus"></i> Add Goal
-                        </button>
-                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addHabitModal">
+                        <i class="bi bi-plus"></i> Add Habit
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+                        <i class="bi bi-plus"></i> Add Goal
+                    </button>
                 </div>
             </div>
             
@@ -139,46 +132,26 @@ include '../views/partials/header.php';
                                 echo "You don't have any habits scheduled for today.";
                             }
                             ?>
-                        </p>                        <div class="mt-4">
+                        </p>
+                        <div class="mt-4">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-white">Level <?php echo $user->level; ?></span>
-                                <?php if($isMaxLevel): ?>
-                                    <span class="text-white">Max Level Reached!</span>
-                                <?php else: ?>
-                                    <span class="text-white">Level <?php echo $user->level + 1; ?></span>
-                                <?php endif; ?>
-                            </div>                            <div class="xp-progress dashboard-progress progress">
-                                <div class="progress-bar progress-bar-animated <?php echo $isMaxLevel ? 'max-level-badge' : ''; ?>" role="progressbar" style="width: <?php echo $xpProgressPercentage; ?>%;" aria-valuenow="<?php echo $xpProgressPercentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div><div class="text-white-50 mt-1">
-                                <?php if($isMaxLevel): ?>
-                                    <?php 
-                                    $maxLevelQuotes = [
-                                        "Excellence is not a destination; it is a continuous journey that never ends. - Brian Tracy",
-                                        "Success is not final, failure is not fatal: it is the courage to continue that counts. - Winston Churchill",
-                                        "The expert in anything was once a beginner. - Helen Hayes",
-                                        "What lies behind us and what lies before us are tiny matters compared to what lies within us. - Ralph Waldo Emerson",
-                                        "You are never too old to set another goal or to dream a new dream. - C.S. Lewis",
-                                        "The only impossible journey is the one you never begin. - Tony Robbins"
-                                    ];
-                                    $randomQuote = $maxLevelQuotes[array_rand($maxLevelQuotes)];
-                                    ?>
-                                    <small><em>"<?php echo $randomQuote; ?>"</em></small>                                <?php else: ?>
-                                    <?php 
-                                    $xpNeededToNext = $nextLevelXP - $user->current_xp;
-                                    ?>
-                                    <small><?php echo $user->current_xp; ?> / <?php echo $nextLevelXP; ?> Total XP (<?php echo $xpNeededToNext; ?> XP needed for next level)</small>
-                                <?php endif; ?>
+                                <span class="text-white">Level <?php echo $user->level + 1; ?></span>
+                            </div>
+                            <div class="xp-progress">
+                                <div class="progress-bar" role="progressbar" style="width: <?php echo $xpProgressPercentage; ?>%;" aria-valuenow="<?php echo $xpProgressPercentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="text-white-50 mt-1">
+                                <small><?php echo $xpForCurrentLevel; ?> / <?php echo $xpNeededForNextLevel; ?> XP to next level</small>
                             </div>
                         </div>
-                    </div>                    <div class="col-md-4 text-center">
-                        <div class="level-badge <?php echo $isMaxLevel ? 'max-level-badge' : ''; ?>">
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="level-badge">
                             <?php echo $user->level; ?>
                         </div>
                         <h4 class="text-white mt-2"><?php echo $levelInfo['title']; ?></h4>
                         <p class="text-white-50"><?php echo $levelInfo['badge_name']; ?></p>
-                        <?php if($isMaxLevel): ?>
-                            <p class="text-warning">🏆 Maximum Level Achieved!</p>
-                        <?php endif; ?>
                         <p class="text-white">Total XP: <?php echo $user->current_xp; ?></p>
                     </div>
                 </div>
@@ -645,14 +618,11 @@ include '../views/partials/header.php';
                     customOptions.style.display = 'block';
                 }
             });
-        }    });
+        }
+    });
 </script>
 
 <?php
-// Include modals
-include __DIR__ . '/partials/add_habit_modal.php';
-include __DIR__ . '/partials/add_goal_modal.php';
-
 // Include footer
 include '../views/partials/footer.php';
 ?>

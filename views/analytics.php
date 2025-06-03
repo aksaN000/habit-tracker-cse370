@@ -552,15 +552,10 @@ include '../views/partials/header.php';
                     }
                 }
             }
-        });        <?php endif; ?>
+        });
+        <?php endif; ?>
     });
 </script>
-
-<?php
-// Include modals
-include __DIR__ . '/partials/add_habit_modal.php';
-include __DIR__ . '/partials/add_goal_modal.php';
-?>
 
 <?php
 // Include footer

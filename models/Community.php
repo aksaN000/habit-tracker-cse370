@@ -198,9 +198,10 @@ class Community {
         $stmt->bindParam(':request_id', $request_id);
         return $stmt->execute();
     }
-      // Get incoming friend requests
+    
+    // Get incoming friend requests
     public function getIncomingFriendRequests($user_id) {
-        $query = "SELECT fr.*, u.username as sender_name, u.profile_picture 
+        $query = "SELECT fr.*, u.username as sender_name 
                   FROM " . $this->friend_requests_table . " fr
                   JOIN users u ON fr.sender_id = u.id
                   WHERE fr.recipient_id = :user_id
@@ -212,9 +213,10 @@ class Community {
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-      // Get outgoing friend requests
+    
+    // Get outgoing friend requests
     public function getOutgoingFriendRequests($user_id) {
-        $query = "SELECT fr.*, u.username as recipient_name, u.profile_picture 
+        $query = "SELECT fr.*, u.username as recipient_name 
                   FROM " . $this->friend_requests_table . " fr
                   JOIN users u ON fr.recipient_id = u.id
                   WHERE fr.sender_id = :user_id
@@ -226,9 +228,10 @@ class Community {
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-      // Get user's friends
+    
+    // Get user's friends
     public function getFriends($user_id) {
-        $query = "SELECT f.*, u.username, u.level, u.current_xp, u.profile_picture,
+        $query = "SELECT f.*, u.username, u.level, u.current_xp, 
                          (SELECT COUNT(*) FROM habits WHERE user_id = u.id) as total_habits,
                          (SELECT COUNT(*) FROM goals WHERE user_id = u.id) as total_goals
                   FROM " . $this->friends_table . " f
@@ -269,9 +272,10 @@ class Community {
         
         return $stmt->execute();
     }
-      // Search for users
+    
+    // Search for users
     public function searchUsers($search_term, $current_user_id) {
-        $query = "SELECT id, username, level, profile_picture,
+        $query = "SELECT id, username, level, 
                     (SELECT COUNT(*) FROM " . $this->friends_table . " 
                     WHERE user_id = :current_user_id AND friend_id = users.id) as is_friend
                   FROM users 
@@ -288,14 +292,14 @@ class Community {
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-      // Get user's profile
+    
+    // Get user's profile
     public function getUserProfile($user_id) {
         // Fetch basic user profile data with minimal joins
         $query = "SELECT 
                   u.id, 
                   u.username, 
                   u.level, 
-                  u.profile_picture,
                   u.current_xp, 
                   u.created_at,
                   us.profile_visibility, 

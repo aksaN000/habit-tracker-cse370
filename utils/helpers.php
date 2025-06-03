@@ -7,7 +7,7 @@
  */
 
 /**
- * Format a date to a human-readable string
+ * Format a date to a readable string
  * 
  * @param string $date The date string to format
  * @param string $format The format to use (default: 'M j, Y')
@@ -423,85 +423,4 @@ function generatePagination($current_page, $total_pages, $url_pattern) {
     $html .= '</ul></nav>';
     
     return $html;
-}
-
-/**
- * Generate a consistent gradient class for default profile pictures
- * Based on username to ensure the same user always gets the same gradient
- * 
- * @param string $username The username to generate gradient for
- * @return string The gradient class name
- */
-function getProfileGradientClass($username) {
-    // Create a hash of the username and use it to pick a gradient
-    $hash = crc32(strtolower($username));
-    $gradientNumber = (abs($hash) % 10) + 1; // Get number 1-10
-    return 'gradient-' . $gradientNumber;
-}
-
-/**
- * Generate initials from username for default profile pictures
- * 
- * @param string $username The username to generate initials from
- * @return string The initials (1-2 characters)
- */
-function getProfileInitials($username) {
-    $username = trim($username);
-    
-    // If username contains spaces, get first letter of each word
-    if (strpos($username, ' ') !== false) {
-        $words = explode(' ', $username);
-        $initials = '';
-        foreach ($words as $word) {
-            if (!empty($word)) {
-                $initials .= strtoupper(substr($word, 0, 1));
-                if (strlen($initials) >= 2) break; // Max 2 characters
-            }
-        }
-        return $initials;
-    }
-    
-    // For single words, return first character or first two if very short username
-    if (strlen($username) <= 2) {
-        return strtoupper($username);
-    }
-    
-    return strtoupper(substr($username, 0, 1));
-}
-
-/**
- * Generate a complete default profile picture HTML
- * 
- * @param string $username The username
- * @param string $extraClasses Additional CSS classes to apply
- * @param string $alt Alt text for accessibility
- * @return string Complete HTML for default profile picture
- */
-function getDefaultProfilePicture($username, $extraClasses = '', $alt = 'Profile') {
-    $gradientClass = getProfileGradientClass($username);
-    $initials = getProfileInitials($username);
-    $classes = "profile-pic-default {$gradientClass} {$extraClasses}";
-    
-    return '<div class="' . trim($classes) . '" title="' . htmlspecialchars($alt) . '">' . 
-           htmlspecialchars($initials) . 
-           '</div>';
-}
-
-/**
- * Get profile picture HTML (either uploaded image or default)
- * 
- * @param string $profilePicture The uploaded profile picture filename (or empty)
- * @param string $username The username for default picture
- * @param string $size Size class ('profile-pic', 'profile-pic-large', 'profile-avatar', etc.)
- * @param string $basePath Base path for uploaded images
- * @return string Complete HTML for profile picture
- */
-function getProfilePictureHtml($profilePicture, $username, $size = 'profile-pic', $basePath = '../assets/uploads/profile_pictures/') {
-    if (!empty($profilePicture)) {
-        return '<img src="' . $basePath . htmlspecialchars($profilePicture) . '" 
-                     alt="' . htmlspecialchars($username) . '" 
-                     class="' . $size . '">';
-    } else {
-        return getDefaultProfilePicture($username, $size, $username . "'s profile");
-    }
 }

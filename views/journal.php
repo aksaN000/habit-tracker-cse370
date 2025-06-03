@@ -486,12 +486,7 @@ include '../views/partials/header.php';
                     }
                 }
             }
-        });    });
+        });
+    });
 </script>
 <?php endif; ?>
-
-<?php
-// Include modals
-include __DIR__ . '/partials/add_habit_modal.php';
-include __DIR__ . '/partials/add_goal_modal.php';
-?>

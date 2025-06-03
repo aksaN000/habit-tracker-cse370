@@ -669,14 +669,11 @@ include '../views/partials/header.php';
             categoryFilter.addEventListener('change', filterHabits);
             statusFilter.addEventListener('change', filterHabits);
             sortOption.addEventListener('change', sortHabits);
-        }    });
+        }
+    });
 </script>
 
 <?php
-// Include modals
-include __DIR__ . '/partials/add_habit_modal.php';
-include __DIR__ . '/partials/add_goal_modal.php';
-
 // Include footer
 include __DIR__ . '/partials/footer.php';
 

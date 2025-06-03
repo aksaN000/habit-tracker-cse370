@@ -106,6 +106,112 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                 <img src="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? '../assets/images/logo.png' : 'assets/images/logo.png'; ?>" alt="Habit Tracker Logo" height="30">
                 Habit Tracker
             </a>
+            
+            <!-- Mobile Profile and Notifications - positioned between brand and hamburger menu for mobile only -->
+            <?php if(isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>
+                <div class="d-flex align-items-center me-3 d-lg-none">
+                    <!-- Notifications Dropdown -->
+                    <div class="dropdown me-3">
+                        <a class="btn btn-outline-light position-relative" href="#" role="button" id="notificationsDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell-fill"></i>
+                            <?php
+                            // Get unread notification count
+                            $unreadCount = isset($totalUnreadCount) ? $totalUnreadCount : 0;
+                            if($unreadCount > 0):
+                            ?>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                <?php echo $unreadCount; ?>
+                                <span class="visually-hidden">unread notifications</span>
+                            </span>
+                            <?php endif; ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdownMobile" style="width: 400px;">
+                            <li><h6 class="dropdown-header">Notifications</h6></li>
+                            <?php if(isset($unreadNotifications) && !empty($unreadNotifications)): ?>
+                                <?php foreach($unreadNotifications as $notification): ?>
+                                    <li>
+                                        <a class="dropdown-item" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? '../controllers/mark_notification_read.php?id=' . $notification['id'] : 'controllers/mark_notification_read.php?id=' . $notification['id']; ?>">
+                                            <div class="d-flex">
+                                                <?php
+                                                $icon = 'info-circle';
+                                                $color = 'info';
+                                                switch($notification['type']) {
+                                                    case 'habit':
+                                                        $icon = 'check-circle';
+                                                        $color = 'success';
+                                                        break;
+                                                    case 'goal':
+                                                        $icon = 'trophy';
+                                                        $color = 'warning';
+                                                        break;
+                                                    case 'achievement':
+                                                        $icon = 'award';
+                                                        $color = 'success';
+                                                        break;
+                                                    case 'challenge':
+                                                        $icon = 'flag';
+                                                        $color = 'primary';
+                                                        break;
+                                                    case 'friend':
+                                                        $icon = 'people';
+                                                        $color = 'info';
+                                                        break;
+                                                    case 'reminder':
+                                                        $icon = 'clock';
+                                                        $color = 'secondary';
+                                                        break;
+                                                }
+                                                ?>
+                                                <div class="me-2">
+                                                    <i class="bi bi-<?php echo $icon; ?> text-<?php echo $color; ?>"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold"><?php echo htmlspecialchars($notification['title']); ?></div>
+                                                    <div class="small text-muted"><?php echo htmlspecialchars($notification['message']); ?></div>
+                                                    <div class="small text-muted"><?php echo date('M j, Y g:i A', strtotime($notification['created_at'])); ?></div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                                
+                                <?php if($totalUnreadCount > count($unreadNotifications)): ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-center" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'notifications.php' : 'views/notifications.php'; ?>">
+                                            <?php echo ($totalUnreadCount - count($unreadNotifications)); ?> more notifications
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <li><div class="dropdown-item text-center">No new notifications</div></li>
+                            <?php endif; ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-center" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'notifications.php' : 'views/notifications.php'; ?>">See all notifications</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="dropdown">
+                        <a class="btn btn-outline-light dropdown-toggle" href="#" role="button" id="userDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> <?php echo $_SESSION['username']; ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownMobile">
+                            <li><a class="dropdown-item" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'profile.php' : 'views/profile.php'; ?>"><i class="bi bi-person"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'achievements.php' : 'views/achievements.php'; ?>"><i class="bi bi-award"></i> Achievements</a></li>
+                            <li><a class="dropdown-item" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'settings.php' : 'views/settings.php'; ?>"><i class="bi bi-gear"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? '../controllers/process_logout.php' : 'controllers/process_logout.php'; ?>"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="d-flex align-items-center me-3 d-lg-none">
+                    <a href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'auth/login.php' : 'views/auth/login.php'; ?>" class="btn btn-outline-light me-2">Login</a>
+                    <a href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'auth/register.php' : 'views/auth/register.php'; ?>" class="btn btn-light">Register</a>
+                </div>
+            <?php endif; ?>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -148,8 +254,9 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                     </li>
                 </ul>
                 
+                <!-- Desktop Profile and Notifications - positioned after nav items for desktop only -->
                 <?php if(isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center d-none d-lg-flex">
                         <!-- Notifications Dropdown -->
                         <div class="dropdown me-3">
                             <a class="btn btn-outline-light position-relative" href="#" role="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -159,13 +266,13 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                                 $unreadCount = isset($totalUnreadCount) ? $totalUnreadCount : 0;
                                 if($unreadCount > 0):
                                 ?>
-                                <span class="position-absolute badge rounded-pill bg-danger translate-middle" style="top: -2px; left: 100%;">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                     <?php echo $unreadCount; ?>
                                     <span class="visually-hidden">unread notifications</span>
                                 </span>
                                 <?php endif; ?>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="width: 300px;">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="width: 400px;">
                                 <li><h6 class="dropdown-header">Notifications</h6></li>
                                 <?php if(isset($unreadNotifications) && !empty($unreadNotifications)): ?>
                                     <?php foreach($unreadNotifications as $notification): ?>
@@ -184,35 +291,39 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                                                             $icon = 'trophy';
                                                             $color = 'warning';
                                                             break;
-                                                        case 'challenge':
-                                                            $icon = 'people';
-                                                            $color = 'danger';
+                                                        case 'achievement':
+                                                            $icon = 'award';
+                                                            $color = 'success';
                                                             break;
-                                                        case 'xp':
-                                                            $icon = 'lightning';
+                                                        case 'challenge':
+                                                            $icon = 'flag';
                                                             $color = 'primary';
                                                             break;
-                                                        case 'level':
-                                                            $icon = 'arrow-up-circle';
-                                                            $color = 'success';
+                                                        case 'friend':
+                                                            $icon = 'people';
+                                                            $color = 'info';
+                                                            break;
+                                                        case 'reminder':
+                                                            $icon = 'clock';
+                                                            $color = 'secondary';
                                                             break;
                                                     }
                                                     ?>
-                                                    <div class="me-3">
-                                                        <i class="bi bi-<?php echo $icon; ?>-fill text-<?php echo $color; ?> fs-4"></i>
+                                                    <div class="me-2">
+                                                        <i class="bi bi-<?php echo $icon; ?> text-<?php echo $color; ?>"></i>
                                                     </div>
-                                                    <div>
-                                                        <strong><?php echo $notification['title']; ?></strong>
-                                                        <p class="mb-0 small"><?php echo $notification['message']; ?></p>
-                                                        <small class="text-muted"><?php echo date('M d, g:i a', strtotime($notification['created_at'])); ?></small>
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-bold"><?php echo htmlspecialchars($notification['title']); ?></div>
+                                                        <div class="small text-muted"><?php echo htmlspecialchars($notification['message']); ?></div>
+                                                        <div class="small text-muted"><?php echo date('M j, Y g:i A', strtotime($notification['created_at'])); ?></div>
                                                     </div>
                                                 </div>
                                             </a>
                                         </li>
-                                        <li><hr class="dropdown-divider"></li>
                                     <?php endforeach; ?>
                                     
                                     <?php if($totalUnreadCount > count($unreadNotifications)): ?>
+                                        <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <a class="dropdown-item text-center" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'notifications.php' : 'views/notifications.php'; ?>">
                                                 <?php echo ($totalUnreadCount - count($unreadNotifications)); ?> more notifications
@@ -226,8 +337,8 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                                 <li><a class="dropdown-item text-center" href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'notifications.php' : 'views/notifications.php'; ?>">See all notifications</a></li>
                             </ul>
                         </div>
-                        
-                        <!-- User Dropdown -->
+
+                        <!-- User Profile Dropdown -->
                         <div class="dropdown">
                             <a class="btn btn-outline-light dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-person-circle"></i> <?php echo $_SESSION['username']; ?>
@@ -242,7 +353,7 @@ $themeClasses[] = $enable_animations ? 'enable-animations' : '';
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="d-flex">
+                    <div class="d-flex align-items-center d-none d-lg-flex">
                         <a href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'auth/login.php' : 'views/auth/login.php'; ?>" class="btn btn-outline-light me-2">Login</a>
                         <a href="<?php echo strpos($_SERVER['PHP_SELF'], '/views/') !== false ? 'auth/register.php' : 'views/auth/register.php'; ?>" class="btn btn-light">Register</a>
                     </div>

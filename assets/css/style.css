@@ -286,7 +286,6 @@ p, span, small, .text-secondary {
     border-radius: var(--radius-lg);
     box-shadow: var(--card-shadow);
     padding: 1rem;
-    animation: dropdownSlide 0.3s ease-out;
     min-width: 250px;
 }
 
@@ -306,16 +305,6 @@ p, span, small, .text-secondary {
     }
 }
 
-@keyframes dropdownSlide {
-    from {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
 
 .dropdown-item {
     padding: 0.75rem 1rem;
@@ -345,7 +334,7 @@ p, span, small, .text-secondary {
 
 /* Notification Dropdown Enhancements */
 .notification-dropdown {
-    max-width: 380px;
+    max-width: 500px;
     width: 90vw;
     max-height: 450px;
     overflow-y: auto;
@@ -354,22 +343,74 @@ p, span, small, .text-secondary {
     box-shadow: var(--card-shadow);
 }
 
-/* Responsive notification dropdown */
+/* Fix notification dropdown positioning for header notifications */
+#notificationsDropdown + .dropdown-menu,
+#notificationsDropdownMobile + .dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    max-width: min(420px, 90vw);
+    width: auto;
+    min-width: 320px;
+    max-height: min(450px, 60vh);
+    overflow-y: auto;
+    transform: none !important;
+    z-index: 1050;
+    margin-top: 0.25rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+}
+
+/* Enhanced responsive notification dropdown */
 @media (max-width: 768px) {
-    .notification-dropdown {
-        max-width: 320px;
-        width: 85vw;
+    .notification-dropdown,
+    #notificationsDropdown + .dropdown-menu,
+    #notificationsDropdownMobile + .dropdown-menu {
+        max-width: min(380px, 95vw);
+        width: 95vw;
         left: auto !important;
-        right: 1rem !important;
+        right: 0 !important;
         transform: none !important;
+        margin-right: 0.5rem;
+        position: fixed !important;
+        top: 60px !important;
     }
 }
 
 @media (max-width: 480px) {
-    .notification-dropdown {
-        max-width: 280px;
-        width: 90vw;
+    .notification-dropdown,
+    #notificationsDropdown + .dropdown-menu,
+    #notificationsDropdownMobile + .dropdown-menu {
+        max-width: min(320px, 98vw);
+        width: 98vw;
+        right: 0.25rem !important;
+        margin-right: 0.25rem;
+        font-size: 0.9rem;
+        position: fixed !important;
+        top: 65px !important;
+    }
+    
+    /* Adjust notification item padding for mobile */
+    #notificationsDropdown + .dropdown-menu .dropdown-item,
+    #notificationsDropdownMobile + .dropdown-menu .dropdown-item {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Ensure dropdown stays within viewport */
+@media (max-width: 320px) {
+    .notification-dropdown,
+    #notificationsDropdown + .dropdown-menu,
+    #notificationsDropdownMobile + .dropdown-menu {
+        max-width: calc(100vw - 1rem);
+        width: calc(100vw - 1rem);
         right: 0.5rem !important;
+        left: auto !important;
+        position: fixed !important;
+        top: 70px !important;
     }
 }
 
@@ -2583,6 +2624,57 @@ p, span, small, .text-secondary {
     right: -10px;
 }
 
+/* Fix for header notification badge positioning - prevent cutoff */
+.position-absolute.badge.translate-middle {
+    top: -6px !important;
+    left: calc(100% - 6px) !important;
+    transform: translate(-50%, -50%) !important;
+    min-width: 18px;
+    min-height: 18px;
+    padding: 0.25em 0.5em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    z-index: 1000;
+}
+
+/* Better positioning for notification badge using Bootstrap classes */
+.position-absolute.top-0.start-100.translate-middle.badge {
+    transform: translate(-50%, -50%) !important;
+    top: -6px !important;
+    left: calc(100% - 6px) !important;
+    min-width: 20px;
+    min-height: 20px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Ensure notification badge content is always visible */
+.position-absolute.badge.translate-middle.bg-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure notification badge parent container doesn't clip the badge */
+.btn.position-relative {
+    overflow: visible !important;
+}
+
+/* Additional positioning security for notification badges */
+.dropdown .btn.position-relative .badge {
+    white-space: nowrap;
+    overflow: visible;
+    clip: auto;
+}
+
 /* Streak badge styling */
 .streak-badge {
     background: linear-gradient(135deg, #ff6b35, #f7931e);
@@ -3424,3 +3516,71 @@ p, span, small, .text-secondary {
     opacity: 0.18;
 }
 .welcome-section > * { position: relative; z-index: 1; }
+
+/* Header profile and notification positioning improvements */
+.navbar .container-fluid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Remove the mobile-specific ordering since we now use Bootstrap responsive classes */
+/* The elements are now properly positioned using d-lg-none and d-none d-lg-flex classes */
+
+/* Compact profile/notification buttons on smaller screens */
+@media (max-width: 991.98px) {
+    .navbar .btn.btn-outline-light {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Hide username text on very small screens, keep only icon */
+    @media (max-width: 480px) {
+        .navbar .btn.btn-outline-light .bi-person-circle + * {
+            display: none;
+        }
+    }
+}
+
+/* Ensure proper spacing for desktop navbar items */
+@media (min-width: 992px) {
+    .navbar .navbar-nav {
+        margin-right: 0;
+    }
+    
+    .navbar .d-none.d-lg-flex {
+        margin-left: 1rem;
+    }
+}
+
+/* Improved spacing for notification and profile dropdowns in header */
+.navbar .dropdown-menu {
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Better mobile notification dropdown positioning */
+@media (max-width: 991.98px) {
+    .navbar #notificationsDropdown + .dropdown-menu {
+        position: fixed !important;
+        top: 70px !important;
+        right: 10px !important;
+        left: auto !important;
+        transform: none !important;
+        max-width: calc(100vw - 20px);
+        width: auto;
+        min-width: 280px;
+    }
+    
+    .navbar #userDropdown + .dropdown-menu {
+        position: fixed !important;
+        top: 70px !important;
+        right: 10px !important;
+        left: auto !important;
+        transform: none !important;
+        max-width: calc(100vw - 20px);
+        width: auto;
+        min-width: 200px;
+    }
+}

@@ -2,6 +2,323 @@
  * Habit Tracker - Main JavaScript File
  */
 
+// Modern JavaScript Enhancements for Better UX
+class HabitTrackerUI {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.setupAnimations();
+        this.setupLoadingStates();
+        this.setupTooltips();
+        this.setupNotifications();
+        this.setupScrollEffects();
+        this.setupHabitCompletions();
+    }
+
+    // Setup modern animations
+    setupAnimations() {
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('card-animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards for animation
+        document.querySelectorAll('.card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Add stagger effect to habit cards
+        document.querySelectorAll('.habit-card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    }
+
+    // Setup loading states for better UX
+    setupLoadingStates() {
+        // Add loading skeleton while content loads
+        const contentElements = document.querySelectorAll('.stat-card, .progress-card');
+        contentElements.forEach(element => {
+            if (!element.dataset.loaded) {
+                element.classList.add('loading-skeleton');
+                setTimeout(() => {
+                    element.classList.remove('loading-skeleton');
+                    element.classList.add('card-bounce');
+                    element.dataset.loaded = 'true';
+                }, Math.random() * 500 + 200);
+            }
+        });
+    }
+
+    // Enhanced tooltips
+    setupTooltips() {
+        // Custom modern tooltips
+        document.querySelectorAll('.tooltip-modern').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    }
+
+    // Setup notification enhancements
+    setupNotifications() {
+        // Auto-hide success messages
+        const alerts = document.querySelectorAll('.alert-modern');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-20px)';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        });
+
+        // Notification badge animation
+        const notificationBadges = document.querySelectorAll('.notification-badge');
+        notificationBadges.forEach(badge => {
+            badge.addEventListener('click', function() {
+                this.classList.add('celebrate');
+                setTimeout(() => this.classList.remove('celebrate'), 600);
+            });
+        });
+    }
+
+    // Setup scroll effects
+    setupScrollEffects() {
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.navbar');
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (navbar) {
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // Scrolling down - hide navbar
+                    navbar.style.transform = 'translateY(-100%)';
+                } else {
+                    // Scrolling up - show navbar
+                    navbar.style.transform = 'translateY(0)';
+                }
+            }
+            
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+
+        // Parallax effect for background elements
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('[data-parallax]');
+            
+            parallaxElements.forEach(element => {
+                const speed = element.dataset.parallax || 0.5;
+                element.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+    }
+
+    // Enhanced habit completion with animations
+    setupHabitCompletions() {
+        const habitButtons = document.querySelectorAll('.habit-complete-btn');
+        
+        habitButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Add loading state
+                this.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> Completing...';
+                this.disabled = true;
+                
+                // Simulate API call (replace with actual form submission)
+                setTimeout(() => {
+                    this.classList.add('completed');
+                    this.innerHTML = '<i class="bi bi-check-circle"></i> Completed!';
+                    
+                    // Add celebration effect
+                    this.classList.add('celebrate');
+                    
+                    // Create floating success message
+                    this.createFloatingMessage('Great job! 🎉');
+                    
+                    // Update progress bars with animation
+                    this.updateProgressBars();
+                    
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="bi bi-check"></i> Mark Complete';
+                        this.disabled = false;
+                        this.classList.remove('celebrate');
+                    }, 2000);
+                }, 1000);
+            });
+        });
+    }
+
+    // Create floating success message
+    createFloatingMessage(message) {
+        const floatingMsg = document.createElement('div');
+        floatingMsg.textContent = message;
+        floatingMsg.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--success-gradient);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            z-index: 9999;
+            animation: bounce-in 0.5s ease-out;
+            box-shadow: var(--shadow-xl);
+        `;
+        
+        document.body.appendChild(floatingMsg);
+        
+        setTimeout(() => {
+            floatingMsg.style.opacity = '0';
+            floatingMsg.style.transform = 'translate(-50%, -50%) scale(0.8)';
+            setTimeout(() => floatingMsg.remove(), 300);
+        }, 2000);
+    }
+
+    // Animate progress bars
+    updateProgressBars() {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const currentWidth = parseInt(bar.style.width) || 0;
+            const newWidth = Math.min(currentWidth + 10, 100);
+            
+            setTimeout(() => {
+                bar.style.width = newWidth + '%';
+                bar.setAttribute('aria-valuenow', newWidth);
+            }, 500);
+        });
+    }
+
+    // Streak counter animation
+    animateStreak(element, newValue) {
+        element.style.transform = 'scale(1.2)';
+        element.style.background = 'var(--warning-gradient)';
+        
+        setTimeout(() => {
+            element.textContent = newValue;
+            element.style.transform = 'scale(1)';
+        }, 200);
+    }
+
+    // Theme transition animation
+    animateThemeChange() {
+        document.body.style.transition = 'all 0.3s ease';
+        setTimeout(() => {
+            document.body.style.transition = '';
+        }, 300);
+    }
+}
+
+// Initialize modern UI enhancements
+const habitTrackerUI = new HabitTrackerUI();
+
+// Utility functions for modern interactions
+function addRippleEffect(element) {
+    element.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+        
+        ripple.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}px;
+            top: ${y}px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        `;
+        
+        this.style.position = 'relative';
+        this.style.overflow = 'hidden';
+        this.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+    });
+}
+
+// Add ripple effect to buttons
+document.querySelectorAll('.btn').forEach(addRippleEffect);
+
+// Add CSS for ripple animation
+const rippleStyles = document.createElement('style');
+rippleStyles.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes animate-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .animate-spin {
+        animation: animate-spin 1s linear infinite;
+    }
+`;
+document.head.appendChild(rippleStyles);
+
+// Enhanced form validation with animations
+function validateFormWithAnimation(form) {
+    const inputs = form.querySelectorAll('input, select, textarea');
+    let isValid = true;
+    
+    inputs.forEach(input => {
+        if (!input.checkValidity()) {
+            input.classList.add('is-invalid');
+            input.style.animation = 'shake 0.5s ease-in-out';
+            isValid = false;
+            
+            setTimeout(() => {
+                input.style.animation = '';
+            }, 500);
+        } else {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+        }
+    });
+    
+    return isValid;
+}
+
+// Add shake animation
+const shakeStyles = document.createElement('style');
+shakeStyles.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+`;
+document.head.appendChild(shakeStyles);
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

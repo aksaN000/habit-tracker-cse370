@@ -1,5 +1,4 @@
 <?php
-<<<<<<< HEAD
 /**
  * Habit Tracker - Main Index File
  */

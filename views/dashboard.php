@@ -646,8 +646,7 @@ include '../views/partials/header.php';
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         });
-        
-        // Handle frequency options display
+          // Handle frequency options display
         const frequencySelect = document.getElementById('habitFrequency');
         if(frequencySelect) {
             frequencySelect.addEventListener('change', function() {
@@ -670,6 +669,176 @@ include '../views/partials/header.php';
                     customOptions.style.display = 'block';
                 }
             });
+        }
+        
+        // Handle habit completion forms via AJAX
+        const habitCompletionForms = document.querySelectorAll('.habit-completion-form');
+        habitCompletionForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const button = this.querySelector('button[type="submit"]');
+                const card = this.closest('.habit-card');
+                const habitId = this.querySelector('input[name="habit_id"]').value;
+                
+                // Show loading state
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Completing...';
+                button.disabled = true;
+                
+                // Submit form via AJAX
+                fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update card appearance
+                        card.classList.remove('border-primary');
+                        card.classList.add('border-success');
+                        const cardHeader = card.querySelector('.card-header');
+                        cardHeader.classList.remove('bg-primary');
+                        cardHeader.classList.add('bg-success');
+                        
+                        // Replace form with completion message
+                        const cardBody = this.closest('.card-body');
+                        cardBody.innerHTML = `
+                            <p class="card-text">${cardBody.querySelector('.card-text').innerHTML}</p>
+                            <div class="alert alert-success mb-0">
+                                <i class="bi bi-check-circle-fill"></i> Completed today!
+                            </div>
+                        `;
+                        
+                        // Show success message
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-success alert-dismissible fade show';
+                        alert.innerHTML = `
+                            <i class="bi bi-check-circle"></i> ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                          // Auto-dismiss after 4 seconds
+                        setTimeout(() => {
+                            if (alert.parentNode) {
+                                alert.remove();
+                            }
+                        }, 4000);
+                        
+                        // Update sidebar elements
+                        updateSidebarElements(data);
+                        
+                    } else {
+                        // Handle error
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        
+                        // Show error message
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-danger alert-dismissible fade show';
+                        alert.innerHTML = `
+                            <i class="bi bi-exclamation-triangle"></i> ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error completing habit:', error);
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    
+                    // Show error message
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-danger alert-dismissible fade show';
+                    alert.innerHTML = `
+                        <i class="bi bi-exclamation-triangle"></i> Error completing habit. Please try again.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;                    document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                });
+            });
+        });        // Function to update sidebar elements after habit completion
+        function updateSidebarElements(data) {
+            // Update header notification count if provided
+            if (data.notification_count !== undefined) {
+                // Update both mobile and desktop notification badges using a more specific selector
+                const notificationBadges = document.querySelectorAll('span.badge.rounded-pill.bg-danger');
+                notificationBadges.forEach(badge => {
+                    // Check if this is actually a notification badge (has the positioning classes)
+                    if (badge.classList.contains('position-absolute') && 
+                        badge.classList.contains('top-0') && 
+                        badge.classList.contains('start-100')) {
+                        if (data.notification_count > 0) {
+                            badge.textContent = data.notification_count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                });
+            }
+            
+            // Update XP and level information if provided
+            if (data.new_xp !== undefined && data.current_level !== undefined) {
+                // Update level display in progress section
+                const levelText = document.querySelector('.progress-section .text-muted');
+                if (levelText && levelText.textContent.includes('Level')) {
+                    levelText.textContent = 'Level ' + data.current_level;
+                }
+                
+                // Update XP progress bar with fresh data
+                updateXPProgressBar();
+            }
+            
+            // Show level up message if applicable
+            if (data.level_up && data.new_level) {
+                setTimeout(() => {
+                    const levelUpAlert = document.createElement('div');
+                    levelUpAlert.className = 'alert alert-warning alert-dismissible fade show';
+                    levelUpAlert.innerHTML = `
+                        <i class="bi bi-star-fill"></i> 🎉 Level Up! You reached Level ${data.new_level}!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('main').insertBefore(levelUpAlert, document.querySelector('main').firstChild);
+                    
+                    // Auto-dismiss after 6 seconds
+                    setTimeout(() => {
+                        if (levelUpAlert.parentNode) {
+                            levelUpAlert.remove();
+                        }
+                    }, 6000);
+                }, 500); // Delay to show after habit completion message
+            }
+        }        // Function to update XP progress bar
+        function updateXPProgressBar() {
+            // Make AJAX call to get the exact progress data
+            fetch('../controllers/get_user_progress.php')
+                .then(response => response.json())
+                .then(progressData => {
+                    if (progressData.success) {
+                        // Update progress bar
+                        const progressBar = document.querySelector('.progress-section .progress-bar');
+                        if (progressBar) {
+                            progressBar.style.width = progressData.percentage + '%';
+                            progressBar.setAttribute('aria-valuenow', progressData.percentage);
+                        }
+                        
+                        // Update level text
+                        const levelText = document.querySelector('.progress-section .text-muted');
+                        if (levelText && levelText.textContent.includes('Level')) {
+                            levelText.textContent = 'Level ' + progressData.current_level;
+                        }
+                        
+                        // Update XP text
+                        const xpText = document.querySelector('.progress-section small:last-child');
+                        if (xpText) {
+                            xpText.innerHTML = `${progressData.current_xp} / ${progressData.next_level_xp} XP to Level ${progressData.next_level}`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.log('Could not update XP progress bar:', error);
+                });
         }
     });
 </script>

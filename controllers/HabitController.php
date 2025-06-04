@@ -104,15 +104,27 @@ class HabitController {
                 'title' => 'Habit Completed',
                 'message' => "You completed the habit: {$this->habit->title}"
             ];
+              $this->notificationHelper->createNotificationIfEnabled($notification_data);            // Get updated user data for frontend updates
+            $user_query = "SELECT current_xp, level FROM users WHERE id = :user_id LIMIT 1";
+            $user_stmt = $this->conn->prepare($user_query);
+            $user_stmt->bindParam(':user_id', $user_id);
+            $user_stmt->execute();
+            $updated_user = $user_stmt->fetch(PDO::FETCH_ASSOC);
             
-            $this->notificationHelper->createNotificationIfEnabled($notification_data);
+            // Get notification count (for header notification badge)
+            require_once __DIR__ . '/NotificationController.php';
+            $notificationController = new NotificationController();
+            $notification_count = $notificationController->getNotificationCount($user_id, true);
             
             return [
                 'success' => true,
                 'message' => 'Habit marked as complete',
                 'xp_awarded' => $this->habit->xp_reward,
                 'level_up' => $xp_result['level_up'] ?? false,
-                'new_level' => $xp_result['new_level'] ?? null
+                'new_level' => $xp_result['new_level'] ?? null,
+                'new_xp' => $updated_user['current_xp'] ?? null,
+                'current_level' => $updated_user['level'] ?? null,
+                'notification_count' => $notification_count
             ];
         } else {
             return [

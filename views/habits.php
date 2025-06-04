@@ -566,8 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => response.json())            .then(data => {
                 if (data.success) {
                     card.classList.add('completed');
                     button.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Completed!';
@@ -587,6 +586,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     card.appendChild(celebration);
                     
                     setTimeout(() => celebration.remove(), 1000);
+                    
+                    // Update sidebar elements
+                    updateSidebarElements(data);
                     
                     // Show success message without page reload
                     setTimeout(() => {
@@ -731,11 +733,96 @@ function handleFrequencyChange() {
             break;
         case 'monthly':
             monthlyOptions.style.display = 'block';
-            break;
-        case 'custom':
+            break;        case 'custom':
             customOptions.style.display = 'block';
             break;
     }
+}
+
+// Function to update sidebar elements after habit completion
+function updateSidebarElements(data) {
+    // Update header notification count if provided
+    if (data.notification_count !== undefined) {
+        // Update both mobile and desktop notification badges using a more specific selector
+        const notificationBadges = document.querySelectorAll('span.badge.rounded-pill.bg-danger');
+        notificationBadges.forEach(badge => {
+            // Check if this is actually a notification badge (has the positioning classes)
+            if (badge.classList.contains('position-absolute') && 
+                badge.classList.contains('top-0') && 
+                badge.classList.contains('start-100')) {
+                if (data.notification_count > 0) {
+                    badge.textContent = data.notification_count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        });
+    }
+    
+    // Update XP and level information if provided
+    if (data.new_xp !== undefined && data.current_level !== undefined) {
+        // Update level display in progress section
+        const levelText = document.querySelector('.progress-section .text-muted');
+        if (levelText && levelText.textContent.includes('Level')) {
+            levelText.textContent = 'Level ' + data.current_level;
+        }
+        
+        // Update XP progress bar with fresh data
+        updateXPProgressBar();
+    }
+    
+    // Show level up message if applicable
+    if (data.level_up && data.new_level) {
+        setTimeout(() => {
+            const levelUpAlert = document.createElement('div');
+            levelUpAlert.className = 'alert alert-warning alert-dismissible fade show';
+            levelUpAlert.innerHTML = `
+                <i class="bi bi-star-fill"></i> 🎉 Level Up! You reached Level ${data.new_level}!
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('main').insertBefore(levelUpAlert, document.querySelector('main').firstChild);
+            
+            // Auto-dismiss after 6 seconds
+            setTimeout(() => {
+                if (levelUpAlert.parentNode) {
+                    levelUpAlert.remove();
+                }
+            }, 6000);
+        }, 500); // Delay to show after habit completion message
+    }
+}
+
+// Function to update XP progress bar
+function updateXPProgressBar() {
+    // Make AJAX call to get the exact progress data
+    fetch('../controllers/get_user_progress.php')
+        .then(response => response.json())
+        .then(progressData => {
+            if (progressData.success) {
+                // Update progress bar
+                const progressBar = document.querySelector('.progress-section .progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = progressData.percentage + '%';
+                    progressBar.setAttribute('aria-valuenow', progressData.percentage);
+                }
+                
+                // Update level text
+                const levelText = document.querySelector('.progress-section .text-muted');
+                if (levelText && levelText.textContent.includes('Level')) {
+                    levelText.textContent = 'Level ' + progressData.current_level;
+                }
+                
+                // Update XP text
+                const xpText = document.querySelector('.progress-section small:last-child');
+                if (xpText) {
+                    xpText.innerHTML = `${progressData.current_xp} / ${progressData.next_level_xp} XP to Level ${progressData.next_level}`;
+                }
+            }
+        })
+        .catch(error => {
+            console.log('Could not update XP progress bar:', error);
+        });
 }
 </script>
 

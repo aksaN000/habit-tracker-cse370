@@ -2624,38 +2624,29 @@ p, span, small, .text-secondary {
     right: -10px;
 }
 
-/* Fix for header notification badge positioning - prevent cutoff */
-.position-absolute.badge.translate-middle {
-    top: -6px !important;
-    left: calc(100% - 6px) !important;
-    transform: translate(-50%, -50%) !important;
-    min-width: 18px;
-    min-height: 18px;
-    padding: 0.25em 0.5em;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1;
-    z-index: 1000;
-}
-
-/* Better positioning for notification badge using Bootstrap classes */
+/* Consolidated notification badge positioning - prevent cutoff */
+.position-absolute.badge.translate-middle,
 .position-absolute.top-0.start-100.translate-middle.badge {
-    transform: translate(-50%, -50%) !important;
     top: -6px !important;
     left: calc(100% - 6px) !important;
+    transform: translate(-50%, -50%) !important;
     min-width: 20px;
     min-height: 20px;
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
     font-weight: 600;
+    line-height: 1;
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    white-space: nowrap;
+    overflow: visible;
+    clip: auto;
 }
 
-/* Ensure notification badge content is always visible */
+/* Notification badge styling */
 .position-absolute.badge.translate-middle.bg-danger {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
     color: white !important;
@@ -2664,15 +2655,9 @@ p, span, small, .text-secondary {
 }
 
 /* Ensure notification badge parent container doesn't clip the badge */
-.btn.position-relative {
+.btn.position-relative,
+.dropdown .btn.position-relative {
     overflow: visible !important;
-}
-
-/* Additional positioning security for notification badges */
-.dropdown .btn.position-relative .badge {
-    white-space: nowrap;
-    overflow: visible;
-    clip: auto;
 }
 
 /* Streak badge styling */
@@ -2794,13 +2779,6 @@ p, span, small, .text-secondary {
     color: white !important;
 }
 
-/* Preserve notification badge colors */
-[data-bs-theme="dark"] .notification-badge {
-    background: var(--danger-gradient) !important;
-    color: white !important;
-    border: 2px solid var(--card-bg);
-}
-
 /* Journal entry reference badges - preserve colors */
 [data-bs-theme="dark"] .journal-entry .badge.bg-primary,
 [data-bs-theme="dark"] .journal-entry .badge.bg-success,
@@ -2822,20 +2800,8 @@ p, span, small, .text-secondary {
     color: white !important;
 }
 
-/* Dashboard welcome section text visibility */
-[data-bs-theme="dark"] .welcome-section .stat-number,
-[data-bs-theme="dark"] .welcome-section .stat-label,
-[data-bs-theme="dark"] .welcome-section h1,
-[data-bs-theme="dark"] .welcome-section h2,
-[data-bs-theme="dark"] .welcome-section h3,
-[data-bs-theme="dark"] .welcome-section h4,
-[data-bs-theme="dark"] .welcome-section h5,
-[data-bs-theme="dark"] .welcome-section h6 {
-    color: var(--text-primary) !important;
-    text-shadow: none;
-}
-
-/* Fix dashboard text that becomes invisible without selection */
+/* Consolidated welcome section text visibility fixes */
+.welcome-section *,
 .welcome-section .stat-number,
 .welcome-section .stat-label,
 .welcome-section h1,
@@ -2852,9 +2818,11 @@ p, span, small, .text-secondary {
     visibility: visible !important;
 }
 
-/* Ensure gradient text is properly visible */
+/* Gradient text specific handling */
 .welcome-section .gradient-text,
-.welcome-section .text-gradient-primary {
+.welcome-section .text-gradient-primary,
+.gradient-text,
+.text-gradient-primary {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
@@ -2863,61 +2831,24 @@ p, span, small, .text-secondary {
     visibility: visible !important;
 }
 
-/* Light mode specific fixes for better visibility */
-[data-bs-theme="light"] .welcome-section .stat-number,
-[data-bs-theme="light"] .welcome-section .stat-label,
-[data-bs-theme="light"] .welcome-section h1,
-[data-bs-theme="light"] .welcome-section h2,
-[data-bs-theme="light"] .welcome-section h3,
-[data-bs-theme="light"] .welcome-section h4,
-[data-bs-theme="light"] .welcome-section h5,
-[data-bs-theme="light"] .welcome-section h6 {
-    color: var(--text-primary) !important;
-    text-shadow: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* Fix any elements that might be using transparent text */
-[data-bs-theme="light"] .welcome-section *:not(.gradient-text):not(.text-gradient-primary) {
-    -webkit-text-fill-color: var(--text-primary) !important;
-    color: var(--text-primary) !important;
-}
-
-/* Ensure all stat elements are visible */
+/* Stat elements visibility */
 .stat-card .stat-number,
 .stat-card .stat-label,
 .stat-item .stat-number,
-.stat-item .stat-label {
+.stat-item .stat-label,
+.dashboard-stats *,
+.habits-header * {
     color: var(--text-primary) !important;
     opacity: 1 !important;
     visibility: visible !important;
     text-shadow: none !important;
-}
-
-/* Force visibility for any hidden text */
-.welcome-section *,
-.dashboard-stats *,
-.habits-header * {
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* Override any problematic text-fill-color settings */
-* {
-    -webkit-text-fill-color: unset;
-}
-
-.gradient-text,
-.text-gradient-primary {
-    -webkit-text-fill-color: transparent !important;
 }
 
 /* ================================================
    WELCOME SECTION SPECIFIC FIXES
    ================================================ */
 
-/* Ensure welcome section maintains proper text color in all themes */
+/* Welcome section maintains proper text color in all themes */
 .welcome-section h2,
 .welcome-section h4,
 .welcome-section p,
@@ -2927,31 +2858,12 @@ p, span, small, .text-secondary {
     visibility: visible !important;
 }
 
-/* Remove any conflicting text color classes in welcome section */
-.welcome-section .text-white,
-.welcome-section .text-white-50 {
-    color: var(--text-primary) !important;
-}
-
 /* Level badge in welcome section */
 .welcome-section .level-badge {
     background: var(--primary-gradient) !important;
     color: white !important;
     opacity: 1 !important;
     visibility: visible !important;
-}
-
-/* Dark mode welcome section fixes */
-[data-bs-theme="dark"] .welcome-section h2,
-[data-bs-theme="dark"] .welcome-section h4,
-[data-bs-theme="dark"] .welcome-section p,
-[data-bs-theme="dark"] .welcome-section .lead {
-    color: var(--text-primary) !important;
-}
-
-[data-bs-theme="dark"] .welcome-section .text-white,
-[data-bs-theme="dark"] .welcome-section .text-white-50 {
-    color: var(--text-primary) !important;
 }
 
 /* Fix for journal warning badges with text-dark class */
@@ -3279,7 +3191,7 @@ p, span, small, .text-secondary {
     margin: 0.25rem;
 }
 
-/* Fix for text visibility issues */
+/* Sidebar text color consistency */
 .sidebar * {
     color: inherit !important;
 }
@@ -3298,7 +3210,7 @@ p, span, small, .text-secondary {
     color: var(--text-muted) !important;
 }
 
-/* Remove any conflicting Bootstrap classes */
+/* Override conflicting Bootstrap text classes */
 .sidebar .text-white,
 .sidebar .text-dark {
     color: var(--text-secondary) !important;

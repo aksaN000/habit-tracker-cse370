@@ -141,10 +141,39 @@ include '../views/partials/header.php';
                 </div>
             </div>
             
-            <!-- Modern Floating Action Button -->
-            <button class="fab tooltip-modern" data-tooltip="Add New Habit" data-bs-toggle="modal" data-bs-target="#addHabitModal">
-                <i class="bi bi-plus"></i>
-            </button>
+            <!-- Habit Filters -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-4 mb-2 mb-md-0">
+                                    <label for="categoryFilter" class="form-label fw-bold mb-2">Filter by Category:</label>
+                                    <select class="form-select" id="categoryFilter">
+                                        <option value="all">All Categories</option>
+                                        <?php foreach($categories as $category): ?>
+                                            <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-2 mb-md-0">
+                                    <label for="statusFilter" class="form-label fw-bold mb-2">Filter by Status:</label>
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="all">All Habits</option>
+                                        <option value="completed">Completed Today</option>
+                                        <option value="pending">Pending Today</option>
+                                        <option value="active">Active Habits</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="searchHabits" class="form-label fw-bold mb-2">Search Habits:</label>
+                                    <input type="text" class="form-control" id="searchHabits" placeholder="Search habit titles...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <!-- Enhanced Habits Grid -->
             <div class="row">
@@ -164,6 +193,7 @@ include '../views/partials/header.php';
                     <?php foreach($habits as $index => $habit): ?>
                         <div class="col-md-6 col-lg-4 mb-4">
                             <div class="habit-card-modern <?= $habit['is_completed_today'] ? 'completed' : '' ?>" 
+                                 data-category-id="<?= $habit['category_id'] ?>"
                                  style="animation-delay: <?= $index * 0.1 ?>s">
                                 
                                 <!-- Habit Header -->
@@ -253,7 +283,7 @@ include '../views/partials/header.php';
                                 <!-- Action Buttons -->
                                 <div class="d-grid gap-2">
                                     <?php if(!$habit['is_completed_today']): ?>
-                                        <form class="habit-completion-form" action="/controllers/process_habit_completion.php" method="POST">
+                                        <form class="habit-completion-form" data-habit-id="<?= $habit['id'] ?>">
                                             <input type="hidden" name="habit_id" value="<?= $habit['id'] ?>">
                                             <button type="submit" class="btn btn-success habit-complete-btn btn-glow w-100">
                                                 <i class="bi bi-check-circle me-2"></i>
@@ -396,9 +426,110 @@ include '../views/partials/header.php';
 </style>
 
 <script>
+// Habit filtering functionality
+function filterHabits() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const searchInput = document.getElementById('searchHabits');
+    
+    if (!categoryFilter || !statusFilter || !searchInput) {
+        console.error('Filter elements not found');
+        return;
+    }
+    
+    const categoryValue = categoryFilter.value;
+    const statusValue = statusFilter.value;
+    const searchTerm = searchInput.value.toLowerCase();
+    
+    const habitCards = document.querySelectorAll('.habit-card-modern');
+    let visibleCount = 0;
+    
+    habitCards.forEach((card) => {
+        const cardParent = card.closest('.col-md-6, .col-lg-4');
+        if (!cardParent) return;
+        
+        let showCard = true;
+        
+        // Get habit title
+        const titleElement = card.querySelector('h5, .card-title');
+        const title = titleElement ? titleElement.textContent.toLowerCase() : '';
+        
+        // Get category ID
+        const categoryId = card.getAttribute('data-category-id');
+        
+        // Check if completed
+        const isCompleted = card.classList.contains('completed');
+        
+        // Apply category filter
+        if (categoryValue !== 'all' && categoryId !== categoryValue) {
+            showCard = false;
+        }
+        
+        // Apply status filter
+        if (statusValue !== 'all') {
+            switch (statusValue) {
+                case 'completed':
+                    if (!isCompleted) showCard = false;
+                    break;
+                case 'pending':
+                    if (isCompleted) showCard = false;
+                    break;
+                case 'active':
+                    // Show all active habits (non-archived)
+                    break;
+            }
+        }
+        
+        // Apply search filter
+        if (searchTerm && !title.includes(searchTerm)) {
+            showCard = false;
+        }
+        
+        // Show/hide the card
+        if (showCard) {
+            cardParent.style.display = '';
+            visibleCount++;
+        } else {
+            cardParent.style.display = 'none';
+        }
+    });
+    
+    // Update no habits message
+    updateNoHabitsMessage();
+}
+
+function updateNoHabitsMessage() {
+    const visibleCards = document.querySelectorAll('.col-md-6:not([style*="display: none"]), .col-lg-4:not([style*="display: none"])');
+    const noHabitsCard = document.querySelector('.modern-card');
+    const habitsGrid = document.querySelector('.row:has(.habit-card-modern)');
+    
+    if (visibleCards.length === 0 && !noHabitsCard) {
+        // Create and show "no matching habits" message
+        const noMatchMessage = document.createElement('div');
+        noMatchMessage.className = 'col-12';
+        noMatchMessage.innerHTML = `
+            <div class="modern-card text-center py-5 card-animate" id="noMatchMessage">
+                <i class="bi bi-search display-1 text-muted mb-3"></i>
+                <h3 class="text-muted">No matching habits found</h3>
+                <p class="text-muted mb-4">Try adjusting your filters or search terms.</p>
+            </div>
+        `;
+        if (habitsGrid) {
+            habitsGrid.appendChild(noMatchMessage);
+        }
+    } else if (visibleCards.length > 0) {
+        // Remove "no matching habits" message if it exists
+        const existingMessage = document.getElementById('noMatchMessage');
+        if (existingMessage) {
+            existingMessage.parentElement.remove();
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Enhanced habit card animations
     const habitCards = document.querySelectorAll('.habit-card-modern');
+    
     habitCards.forEach((card, index) => {
         card.style.animationDelay = `${index * 0.1}s`;
         
@@ -412,61 +543,337 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Enhanced completion animation
+    // Enhanced completion animation with actual database update
     const completionForms = document.querySelectorAll('.habit-completion-form');
+    
     completionForms.forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const button = this.querySelector('.habit-complete-btn');
             const card = this.closest('.habit-card-modern');
+            const habitId = this.dataset.habitId;
             
             // Animation sequence
             button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Completing...';
             button.disabled = true;
             
-            setTimeout(() => {
-                card.classList.add('completed');
-                button.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Completed!';
+            // Make AJAX call to complete habit
+            const formData = new FormData();
+            formData.append('habit_id', habitId);
+            
+            fetch('../controllers/process_habit_completion.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    card.classList.add('completed');
+                    button.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Completed!';
+                    
+                    // Create celebration effect
+                    const celebration = document.createElement('div');
+                    celebration.innerHTML = '🎉';
+                    celebration.style.cssText = `
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        font-size: 2rem;
+                        pointer-events: none;
+                        animation: celebrate 1s ease-out forwards;
+                    `;
+                    card.appendChild(celebration);
+                    
+                    setTimeout(() => celebration.remove(), 1000);
+                    
+                    // Show success message without page reload
+                    setTimeout(() => {
+                        // Show success notification
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-success alert-dismissible fade show';
+                        alert.innerHTML = `
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                        
+                        // Auto-dismiss the alert after 4 seconds
+                        setTimeout(() => {
+                            if (alert.parentNode) {
+                                alert.remove();
+                            }
+                        }, 4000);
+                    }, 1000);
+                } else {
+                    // Handle error
+                    button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Mark Complete';
+                    button.disabled = false;
+                    
+                    // Show error message
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-danger alert-dismissible fade show';
+                    alert.innerHTML = `
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                }
+            })
+            .catch(error => {
+                console.error('Error completing habit:', error);
+                button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Mark Complete';
+                button.disabled = false;
                 
-                // Create celebration effect
-                const celebration = document.createElement('div');
-                celebration.innerHTML = '🎉';
-                celebration.style.cssText = `
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    font-size: 2rem;
-                    pointer-events: none;
-                    animation: celebrate 1s ease-out forwards;
+                // Show error message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger alert-dismissible fade show';
+                alert.innerHTML = `
+                    Error completing habit. Please try again.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
-                card.appendChild(celebration);
-                
-                setTimeout(() => celebration.remove(), 1000);
-                
-                // Update UI after delay
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-            }, 1500);
+                document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+            });
         });
     });
+    
+    // Add event listener for frequency changes in modals
+    const frequencySelect = document.getElementById('habitFrequency');
+    if (frequencySelect) {
+        frequencySelect.addEventListener('change', handleFrequencyChange);
+        // Set initial state
+        handleFrequencyChange();
+    }
+    
+    // Add event listeners for habit filters
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const searchInput = document.getElementById('searchHabits');
+    
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', filterHabits);
+    }
+    
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterHabits);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterHabits);
+        searchInput.addEventListener('keyup', filterHabits);
+    }
 });
 
 // Habit management functions
 function editHabit(habitId) {
-    // Implementation for edit modal
-    console.log('Edit habit:', habitId);
+    // Fetch habit data from new API endpoint
+    fetch(`../controllers/get_habit.php?id=${habitId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const habit = data.habit;
+                
+                // Populate edit modal fields
+                document.getElementById('editHabitId').value = habit.id;
+                document.getElementById('editHabitTitle').value = habit.title;
+                document.getElementById('editHabitDescription').value = habit.description || '';
+                document.getElementById('editHabitCategory').value = habit.category_id;
+                document.getElementById('editHabitXP').value = habit.xp_reward;
+                
+                // Show edit modal
+                const editModal = new bootstrap.Modal(document.getElementById('editHabitModal'));
+                editModal.show();
+            } else {
+                alert('Error loading habit data: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading habit data. Please try again.');
+        });
 }
 
 function deleteHabit(habitId) {
-    if (confirm('Are you sure you want to delete this habit?')) {
-        // Implementation for delete
-        console.log('Delete habit:', habitId);
+    if (confirm('Are you sure you want to delete this habit? This action cannot be undone.')) {
+        // Create form to submit delete request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '../controllers/process_delete_habit.php';
+        
+        const habitIdInput = document.createElement('input');
+        habitIdInput.type = 'hidden';
+        habitIdInput.name = 'habit_id';
+        habitIdInput.value = habitId;
+        
+        form.appendChild(habitIdInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Handle frequency type changes for add habit modal
+function handleFrequencyChange() {
+    const frequencySelect = document.getElementById('habitFrequency');
+    const weeklyOptions = document.getElementById('weeklyOptions');
+    const monthlyOptions = document.getElementById('monthlyOptions');
+    const customOptions = document.getElementById('customOptions');
+    
+    // Hide all frequency options
+    weeklyOptions.style.display = 'none';
+    monthlyOptions.style.display = 'none';
+    customOptions.style.display = 'none';
+    
+    // Show relevant options based on selection
+    switch (frequencySelect.value) {
+        case 'weekly':
+            weeklyOptions.style.display = 'block';
+            break;
+        case 'monthly':
+            monthlyOptions.style.display = 'block';
+            break;
+        case 'custom':
+            customOptions.style.display = 'block';
+            break;
     }
 }
 </script>
+
+<!-- Add Habit Modal -->
+<div class="modal fade" id="addHabitModal" tabindex="-1" aria-labelledby="addHabitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addHabitModalLabel">Add New Habit</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="../controllers/process_add_habit.php" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="habitTitle" class="form-label">Habit Title</label>
+                        <input type="text" class="form-control" id="habitTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="habitDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="habitDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="habitCategory" class="form-label">Category</label>
+                        <select class="form-select" id="habitCategory" name="category_id">
+                            <?php
+                            foreach($categories as $category) {
+                                echo '<option value="' . $category['id'] . '">' . $category['name'] . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="habitFrequency" class="form-label">Frequency</label>
+                        <select class="form-select" id="habitFrequency" name="frequency_type">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 frequency-options" id="weeklyOptions" style="display: none;">
+                        <label class="form-label">Days of Week</label>
+                        <div class="btn-group d-flex flex-wrap" role="group">
+                            <?php
+                            $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                            foreach($days as $index => $day) {
+                                echo '<input type="checkbox" class="btn-check" id="day' . $index . '" name="frequency_value[]" value="' . $index . '">';
+                                echo '<label class="btn btn-outline-primary m-1" for="day' . $index . '">' . $day . '</label>';
+                            }
+                            ?>
+                        </div>
+                    </div>
+                    <div class="mb-3 frequency-options" id="monthlyOptions" style="display: none;">
+                        <label for="monthlyDay" class="form-label">Day of Month</label>
+                        <select class="form-select" id="monthlyDay" name="monthly_day">
+                            <?php
+                            for($i = 1; $i <= 31; $i++) {
+                                echo '<option value="' . $i . '">' . $i . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="mb-3 frequency-options" id="customOptions" style="display: none;">
+                        <label for="customDays" class="form-label">Repeat every X days</label>
+                        <input type="number" class="form-control" id="customDays" name="custom_days" min="1" value="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="habitStartDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="habitStartDate" name="start_date" value="<?php echo date('Y-m-d'); ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="habitEndDate" class="form-label">End Date (Optional)</label>
+                        <input type="date" class="form-control" id="habitEndDate" name="end_date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="habitXP" class="form-label">XP Reward</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="habitXP" name="xp_reward" min="1" value="10">
+                            <span class="input-group-text">XP</span>
+                        </div>
+                        <div class="form-text">XP earned when completing this habit</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Habit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Habit Modal -->
+<div class="modal fade" id="editHabitModal" tabindex="-1" aria-labelledby="editHabitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="editHabitModalLabel">Edit Habit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="../controllers/process_edit_habit.php" method="POST">
+                <input type="hidden" id="editHabitId" name="habit_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editHabitTitle" class="form-label">Habit Title</label>
+                        <input type="text" class="form-control" id="editHabitTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editHabitDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editHabitDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editHabitCategory" class="form-label">Category</label>
+                        <select class="form-select" id="editHabitCategory" name="category_id">
+                            <?php
+                            foreach($categories as $category) {
+                                echo '<option value="' . $category['id'] . '">' . $category['name'] . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editHabitXP" class="form-label">XP Reward</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="editHabitXP" name="xp_reward" min="1" value="10">
+                            <span class="input-group-text">XP</span>
+                        </div>
+                        <div class="form-text">XP earned when completing this habit</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Update Habit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <?php
 // Include footer

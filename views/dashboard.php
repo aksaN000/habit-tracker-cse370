@@ -672,8 +672,7 @@ include '../views/partials/header.php';
         }
         
         // Handle habit completion forms via AJAX
-        const habitCompletionForms = document.querySelectorAll('.habit-completion-form');
-        habitCompletionForms.forEach(form => {
+        const habitCompletionForms = document.querySelectorAll('.habit-completion-form');        habitCompletionForms.forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -681,12 +680,16 @@ include '../views/partials/header.php';
                 const card = this.closest('.habit-card');
                 const habitId = this.querySelector('input[name="habit_id"]').value;
                 
+                // Prevent multiple submissions
+                if (button.disabled) {
+                    return;
+                }
+                
                 // Show loading state
                 const originalText = button.innerHTML;
                 button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Completing...';
                 button.disabled = true;
-                
-                // Submit form via AJAX
+                  // Submit form via AJAX
                 fetch(this.action, {
                     method: 'POST',
                     body: new FormData(this)
@@ -722,25 +725,57 @@ include '../views/partials/header.php';
                         setTimeout(() => {
                             if (alert.parentNode) {
                                 alert.remove();
-                            }
-                        }, 4000);
-                        
-                        // Update sidebar elements
-                        updateSidebarElements(data);
-                        
-                    } else {
+                            }                        }, 4000);
+          // Update sidebar elements - delay slightly to ensure DOM is ready, then retry
+                        setTimeout(() => {
+                            updateSidebarElements(data);
+                            
+                            // Additional delayed retry to catch any timing issues
+                            setTimeout(() => {
+                                updateSidebarElements(data);
+                            }, 300);
+                        }, 100);
+                          } else {
                         // Handle error
                         button.innerHTML = originalText;
                         button.disabled = false;
                         
-                        // Show error message
-                        const alert = document.createElement('div');
-                        alert.className = 'alert alert-danger alert-dismissible fade show';
-                        alert.innerHTML = `
-                            <i class="bi bi-exclamation-triangle"></i> ${data.message}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                        // Special handling for "already completed" error
+                        if (data.message && data.message.includes('already completed')) {
+                            // Update the card to show completed state
+                            card.classList.remove('border-primary');
+                            card.classList.add('border-success');
+                            const cardHeader = card.querySelector('.card-header');
+                            cardHeader.classList.remove('bg-primary');
+                            cardHeader.classList.add('bg-success');
+                            
+                            // Replace form with completion message
+                            const cardBody = this.closest('.card-body');
+                            cardBody.innerHTML = `
+                                <p class="card-text">${cardBody.querySelector('.card-text').innerHTML}</p>
+                                <div class="alert alert-success mb-0">
+                                    <i class="bi bi-check-circle-fill"></i> Completed today!
+                                </div>
+                            `;
+                            
+                            // Show info message instead of error
+                            const alert = document.createElement('div');
+                            alert.className = 'alert alert-info alert-dismissible fade show';
+                            alert.innerHTML = `
+                                <i class="bi bi-info-circle"></i> This habit was already completed today!
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            `;
+                            document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                        } else {
+                            // Show regular error message
+                            const alert = document.createElement('div');
+                            alert.className = 'alert alert-danger alert-dismissible fade show';
+                            alert.innerHTML = `
+                                <i class="bi bi-exclamation-triangle"></i> ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            `;
+                            document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                        }
                     }
                 })
                 .catch(error => {
@@ -761,21 +796,104 @@ include '../views/partials/header.php';
         function updateSidebarElements(data) {
             // Update header notification count if provided
             if (data.notification_count !== undefined) {
-                // Update both mobile and desktop notification badges using a more specific selector
-                const notificationBadges = document.querySelectorAll('span.badge.rounded-pill.bg-danger');
-                notificationBadges.forEach(badge => {
-                    // Check if this is actually a notification badge (has the positioning classes)
-                    if (badge.classList.contains('position-absolute') && 
-                        badge.classList.contains('top-0') && 
-                        badge.classList.contains('start-100')) {
-                        if (data.notification_count > 0) {
-                            badge.textContent = data.notification_count;
-                            badge.style.display = 'inline-block';
-                        } else {
-                            badge.style.display = 'none';
-                        }
+                // Multiple retry attempts to ensure badge update works
+                let retryCount = 0;
+                const maxRetries = 3;
+                
+                function updateBadges() {
+                    // Multiple selector strategies to ensure we catch all notification badges
+                    const selectors = [
+                        'span.badge.rounded-pill.bg-danger.position-absolute',
+                        '.position-absolute.top-0.start-100.translate-middle.badge',
+                        'span.badge.bg-danger[class*="position-absolute"]',
+                        '.btn.position-relative .badge.bg-danger'
+                    ];
+                    
+                    let badgesUpdated = 0;
+                    
+                    selectors.forEach((selector, selectorIndex) => {
+                        const badges = document.querySelectorAll(selector);
+                        
+                        badges.forEach((badge, badgeIndex) => {
+                            // Additional verification that this is a notification badge
+                            const isNotificationBadge = badge.classList.contains('position-absolute') || 
+                                                      badge.closest('.btn.position-relative') ||
+                                                      badge.classList.contains('translate-middle');
+                            
+                            if (isNotificationBadge) {
+                                if (data.notification_count > 0) {
+                                    // Update text content first
+                                    const textContent = data.notification_count.toString();
+                                    badge.textContent = textContent;
+                                    
+                                    // Ensure any nested visually-hidden spans are preserved
+                                    if (!badge.querySelector('.visually-hidden')) {
+                                        const hiddenSpan = document.createElement('span');
+                                        hiddenSpan.className = 'visually-hidden';
+                                        hiddenSpan.textContent = 'unread notifications';
+                                        badge.appendChild(hiddenSpan);
+                                    }
+                                    
+                                    // Force display and visibility
+                                    badge.style.display = 'inline-flex !important';
+                                    badge.style.visibility = 'visible !important';
+                                    badge.style.opacity = '1 !important';
+                                    badge.style.pointerEvents = 'auto';
+                                    
+                                    // Remove any hidden classes
+                                    badge.classList.remove('d-none', 'invisible');
+                                    
+                                    // Force a reflow to ensure visual update
+                                    badge.offsetHeight;
+                                    
+                                    // Add a subtle animation to draw attention
+                                    badge.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                                    setTimeout(() => {
+                                        badge.style.transform = 'translate(-50%, -50%) scale(1)';
+                                    }, 200);
+                                    
+                                } else {
+                                    badge.style.display = 'none !important';
+                                    badge.style.visibility = 'hidden !important';
+                                    badge.style.opacity = '0 !important';
+                                    badge.style.pointerEvents = 'none';
+                                    badge.classList.add('d-none');
+                                }
+                                
+                                badgesUpdated++;
+                            }
+                        });
+                    });
+                    
+                    // Fallback: if no badges were updated, try a more general approach
+                    if (badgesUpdated === 0) {
+                        const allBadges = document.querySelectorAll('.badge');
+                        allBadges.forEach((badge, index) => {
+                            if (badge.classList.contains('bg-danger') && 
+                                (badge.textContent.trim().match(/^\d+$/) || badge.textContent.trim() === '')) {
+                                
+                                if (data.notification_count > 0) {
+                                    badge.textContent = data.notification_count.toString();
+                                    badge.style.display = 'inline-flex !important';
+                                    badge.style.visibility = 'visible !important';
+                                    badge.style.opacity = '1 !important';
+                                    badgesUpdated++;
+                                } else {
+                                    badge.style.display = 'none !important';
+                                }
+                            }
+                        });
                     }
-                });
+                    
+                    // If still no badges updated and we have retries left, try again
+                    if (badgesUpdated === 0 && retryCount < maxRetries) {
+                        retryCount++;
+                        setTimeout(updateBadges, 150 * retryCount); // Increasing delay for each retry
+                    }
+                }
+                
+                // Start the badge update process
+                updateBadges();
             }
             
             // Update XP and level information if provided

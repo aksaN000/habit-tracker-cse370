@@ -72,8 +72,7 @@ class HabitController {
             ];
         }
     }
-    
-    // Mark a habit as complete for today
+      // Mark a habit as complete for today
     public function completeHabit($habit_id, $user_id) {
         // First check if the habit exists and belongs to the user
         $this->habit->id = $habit_id;
@@ -84,52 +83,90 @@ class HabitController {
             ];
         }
         
-        // Check if the habit is already completed for today
-        if($this->habit->isCompletedToday()) {
+        // Check if the habit is already completed for today (with more specific check)
+        $checkQuery = "SELECT COUNT(*) as count FROM habit_completions 
+                       WHERE habit_id = :habit_id AND user_id = :user_id AND DATE(completion_date) = CURDATE()";
+        $checkStmt = $this->conn->prepare($checkQuery);
+        $checkStmt->bindParam(':habit_id', $habit_id);
+        $checkStmt->bindParam(':user_id', $user_id);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if($checkResult['count'] > 0) {
             return [
                 'success' => false,
                 'message' => 'Habit already completed for today'
             ];
-        }
-        
-        // Mark the habit as complete
-        if($this->habit->markAsComplete()) {
-            // Award XP to the user
-            $xp_result = $this->xpSystem->awardXP($user_id, $this->habit->xp_reward, 'habit', 'Completed habit: ' . $this->habit->title);
+        }        // Mark the habit as complete using a transaction for consistency
+        try {
+            $this->conn->beginTransaction();
             
-            // Create habit-specific notification
-            $notification_data = [
-                'user_id' => $user_id,
-                'type' => 'habit',
-                'title' => 'Habit Completed',
-                'message' => "You completed the habit: {$this->habit->title}"
-            ];
-              $this->notificationHelper->createNotificationIfEnabled($notification_data);            // Get updated user data for frontend updates
-            $user_query = "SELECT current_xp, level FROM users WHERE id = :user_id LIMIT 1";
-            $user_stmt = $this->conn->prepare($user_query);
-            $user_stmt->bindParam(':user_id', $user_id);
-            $user_stmt->execute();
-            $updated_user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+            // Double-check completion status within transaction
+            $doubleCheckQuery = "SELECT COUNT(*) as count FROM habit_completions 
+                                WHERE habit_id = :habit_id AND user_id = :user_id AND DATE(completion_date) = CURDATE()";
+            $doubleCheckStmt = $this->conn->prepare($doubleCheckQuery);
+            $doubleCheckStmt->bindParam(':habit_id', $habit_id);
+            $doubleCheckStmt->bindParam(':user_id', $user_id);
+            $doubleCheckStmt->execute();
+            $doubleCheckResult = $doubleCheckStmt->fetch(PDO::FETCH_ASSOC);
             
-            // Get notification count (for header notification badge)
-            require_once __DIR__ . '/NotificationController.php';
-            $notificationController = new NotificationController();
-            $notification_count = $notificationController->getNotificationCount($user_id, true);
+            if($doubleCheckResult['count'] > 0) {
+                $this->conn->rollBack();
+                return [
+                    'success' => false,
+                    'message' => 'Habit already completed for today'
+                ];
+            }
             
-            return [
-                'success' => true,
-                'message' => 'Habit marked as complete',
-                'xp_awarded' => $this->habit->xp_reward,
-                'level_up' => $xp_result['level_up'] ?? false,
-                'new_level' => $xp_result['new_level'] ?? null,
-                'new_xp' => $updated_user['current_xp'] ?? null,
-                'current_level' => $updated_user['level'] ?? null,
-                'notification_count' => $notification_count
-            ];
-        } else {
+            if($this->habit->markAsComplete()) {
+                $this->conn->commit();
+                
+                // Award XP to the user
+                $xp_result = $this->xpSystem->awardXP($user_id, $this->habit->xp_reward, 'habit', 'Completed habit: ' . $this->habit->title);
+                
+                // Create habit-specific notification
+                $notification_data = [
+                    'user_id' => $user_id,
+                    'type' => 'habit',
+                    'title' => 'Habit Completed',
+                    'message' => "You completed the habit: {$this->habit->title}"
+                ];
+                $this->notificationHelper->createNotificationIfEnabled($notification_data);
+                
+                // Get updated user data for frontend updates
+                $user_query = "SELECT current_xp, level FROM users WHERE id = :user_id LIMIT 1";
+                $user_stmt = $this->conn->prepare($user_query);
+                $user_stmt->bindParam(':user_id', $user_id);
+                $user_stmt->execute();
+                $updated_user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // Get notification count (for header notification badge)
+                require_once __DIR__ . '/NotificationController.php';
+                $notificationController = new NotificationController();
+                $notification_count = $notificationController->getNotificationCount($user_id, true);
+                
+                return [
+                    'success' => true,
+                    'message' => 'Habit marked as complete',
+                    'xp_awarded' => $this->habit->xp_reward,
+                    'level_up' => $xp_result['level_up'] ?? false,
+                    'new_level' => $xp_result['new_level'] ?? null,
+                    'new_xp' => $updated_user['current_xp'] ?? null,
+                    'current_level' => $updated_user['level'] ?? null,
+                    'notification_count' => $notification_count
+                ];
+            } else {
+                $this->conn->rollBack();
+                return [
+                    'success' => false,
+                    'message' => 'Failed to mark habit as complete'
+                ];
+            }
+        } catch (Exception $e) {
+            $this->conn->rollBack();
             return [
                 'success' => false,
-                'message' => 'Failed to mark habit as complete'
+                'message' => 'Database error occurred'
             ];
         }
     }

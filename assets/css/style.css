@@ -2637,13 +2637,16 @@ p, span, small, .text-secondary {
     font-weight: 600;
     line-height: 1;
     z-index: 1000;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     white-space: nowrap;
     overflow: visible;
     clip: auto;
+    transition: all 0.3s ease !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* Notification badge styling */
@@ -2658,6 +2661,21 @@ p, span, small, .text-secondary {
 .btn.position-relative,
 .dropdown .btn.position-relative {
     overflow: visible !important;
+}
+
+/* Hidden state for notification badges */
+.position-absolute.badge.translate-middle[style*="display: none"],
+.position-absolute.badge.translate-middle[style*="visibility: hidden"] {
+    opacity: 0 !important;
+    transform: translate(-50%, -50%) scale(0) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Visible state animation for notification badges */
+.position-absolute.badge.translate-middle:not([style*="display: none"]):not([style*="visibility: hidden"]) {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+    transition: all 0.3s ease !important;
 }
 
 /* Streak badge styling */

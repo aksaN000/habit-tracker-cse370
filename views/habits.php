@@ -553,18 +553,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const button = this.querySelector('.habit-complete-btn');
             const card = this.closest('.habit-card-modern');
             const habitId = this.dataset.habitId;
-            
-            // Animation sequence
+              // Animation sequence
             button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Completing...';
             button.disabled = true;
             
-            // Make AJAX call to complete habit
-            const formData = new FormData();
-            formData.append('habit_id', habitId);
-            
+            // Make AJAX call to complete habit using FormData from the entire form
             fetch('../controllers/process_habit_completion.php', {
                 method: 'POST',
-                body: formData
+                body: new FormData(this)  // Use the entire form data instead of manually creating FormData
             })
             .then(response => response.json())            .then(data => {
                 if (data.success) {
@@ -584,11 +580,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         animation: celebrate 1s ease-out forwards;
                     `;
                     card.appendChild(celebration);
-                    
-                    setTimeout(() => celebration.remove(), 1000);
-                    
-                    // Update sidebar elements
-                    updateSidebarElements(data);
+                      setTimeout(() => celebration.remove(), 1000);                        // Update sidebar elements - delay slightly to ensure DOM is ready, then retry
+                        setTimeout(() => {
+                            updateSidebarElements(data);
+                            
+                            // Additional delayed retry to catch any timing issues
+                            setTimeout(() => {
+                                updateSidebarElements(data);
+                            }, 300);
+                        }, 100);
                     
                     // Show success message without page reload
                     setTimeout(() => {
@@ -743,21 +743,104 @@ function handleFrequencyChange() {
 function updateSidebarElements(data) {
     // Update header notification count if provided
     if (data.notification_count !== undefined) {
-        // Update both mobile and desktop notification badges using a more specific selector
-        const notificationBadges = document.querySelectorAll('span.badge.rounded-pill.bg-danger');
-        notificationBadges.forEach(badge => {
-            // Check if this is actually a notification badge (has the positioning classes)
-            if (badge.classList.contains('position-absolute') && 
-                badge.classList.contains('top-0') && 
-                badge.classList.contains('start-100')) {
-                if (data.notification_count > 0) {
-                    badge.textContent = data.notification_count;
-                    badge.style.display = 'inline-block';
-                } else {
-                    badge.style.display = 'none';
-                }
+        // Multiple retry attempts to ensure badge update works
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        function updateBadges() {
+            // Multiple selector strategies to ensure we catch all notification badges
+            const selectors = [
+                'span.badge.rounded-pill.bg-danger.position-absolute',
+                '.position-absolute.top-0.start-100.translate-middle.badge',
+                'span.badge.bg-danger[class*="position-absolute"]',
+                '.btn.position-relative .badge.bg-danger'
+            ];
+            
+            let badgesUpdated = 0;
+            
+            selectors.forEach((selector, selectorIndex) => {
+                const badges = document.querySelectorAll(selector);
+                
+                badges.forEach((badge, badgeIndex) => {
+                    // Additional verification that this is a notification badge
+                    const isNotificationBadge = badge.classList.contains('position-absolute') || 
+                                              badge.closest('.btn.position-relative') ||
+                                              badge.classList.contains('translate-middle');
+                    
+                    if (isNotificationBadge) {
+                        if (data.notification_count > 0) {
+                            // Update text content first
+                            const textContent = data.notification_count.toString();
+                            badge.textContent = textContent;
+                            
+                            // Ensure any nested visually-hidden spans are preserved
+                            if (!badge.querySelector('.visually-hidden')) {
+                                const hiddenSpan = document.createElement('span');
+                                hiddenSpan.className = 'visually-hidden';
+                                hiddenSpan.textContent = 'unread notifications';
+                                badge.appendChild(hiddenSpan);
+                            }
+                            
+                            // Force display and visibility
+                            badge.style.display = 'inline-flex !important';
+                            badge.style.visibility = 'visible !important';
+                            badge.style.opacity = '1 !important';
+                            badge.style.pointerEvents = 'auto';
+                            
+                            // Remove any hidden classes
+                            badge.classList.remove('d-none', 'invisible');
+                            
+                            // Force a reflow to ensure visual update
+                            badge.offsetHeight;
+                            
+                            // Add a subtle animation to draw attention
+                            badge.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                            setTimeout(() => {
+                                badge.style.transform = 'translate(-50%, -50%) scale(1)';
+                            }, 200);
+                            
+                        } else {
+                            badge.style.display = 'none !important';
+                            badge.style.visibility = 'hidden !important';
+                            badge.style.opacity = '0 !important';
+                            badge.style.pointerEvents = 'none';
+                            badge.classList.add('d-none');
+                        }
+                        
+                        badgesUpdated++;
+                    }
+                });
+            });
+            
+            // Fallback: if no badges were updated, try a more general approach
+            if (badgesUpdated === 0) {
+                const allBadges = document.querySelectorAll('.badge');
+                allBadges.forEach((badge, index) => {
+                    if (badge.classList.contains('bg-danger') && 
+                        (badge.textContent.trim().match(/^\d+$/) || badge.textContent.trim() === '')) {
+                        
+                        if (data.notification_count > 0) {
+                            badge.textContent = data.notification_count.toString();
+                            badge.style.display = 'inline-flex !important';
+                            badge.style.visibility = 'visible !important';
+                            badge.style.opacity = '1 !important';
+                            badgesUpdated++;
+                        } else {
+                            badge.style.display = 'none !important';
+                        }
+                    }
+                });
             }
-        });
+            
+            // If still no badges updated and we have retries left, try again
+            if (badgesUpdated === 0 && retryCount < maxRetries) {
+                retryCount++;
+                setTimeout(updateBadges, 150 * retryCount); // Increasing delay for each retry
+            }
+        }
+        
+        // Start the badge update process
+        updateBadges();
     }
     
     // Update XP and level information if provided
